@@ -35,17 +35,38 @@ public class GameController implements Initializable{
             System.out.println(event.getCode());
         }
     }
+    //用户按下按钮之后，自动将焦点设置到游戏区域
     @FXML private void startGameHandler() {
         gameLog.appendText("游戏开始!\n");
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
     }
     @FXML private void quitGameHandler() {
         gameLog.appendText("游戏结束\n");
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
     }
     @FXML private void heroesChangeFormationHandler() {
         gameLog.appendText("葫芦娃阵营变阵\n");
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
     }
-    @FXML private void evildoerssChangeFormationHandler() {
+    @FXML private void evildoersChangeFormationHandler() {
         gameLog.appendText("怪物阵营变阵\n");
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
     }
     public void initialize(URL url, ResourceBundle rb) {
         gameLog.setText("游戏准备开始.\n");
