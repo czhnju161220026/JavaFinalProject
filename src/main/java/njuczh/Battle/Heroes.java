@@ -10,31 +10,40 @@ import njuczh.Things.*;
 
 public class Heroes {
 
-    private ArrayList<Creature> heros;
+    private ArrayList<CalabashBrother>calabashBrothers;
+    private Grandfather grandfather;
 
     public Heroes(Block[][] battlefield) {
-        heros = new ArrayList<Creature>();
-        heros.addAll(Arrays.asList(new CalabashBrother(Color.RED,battlefield),new CalabashBrother(Color.ORANGE,battlefield),
+        calabashBrothers = new ArrayList<CalabashBrother>();
+        calabashBrothers.addAll(Arrays.asList(new CalabashBrother(Color.RED,battlefield),new CalabashBrother(Color.ORANGE,battlefield),
                 new CalabashBrother(Color.YELLOW,battlefield), new CalabashBrother(Color.GREEN,battlefield),new CalabashBrother(Color.BLUE,battlefield),
                 new CalabashBrother(Color.CYAN,battlefield),new CalabashBrother(Color.PURPLE,battlefield)));
-        heros.add(new Grandfather(battlefield));
+        grandfather = new Grandfather(battlefield);
     }
 
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {
         String formationName = fp.getName();
         Position[] positions = fp.provideFormation();
-        for(Creature hero:heros) {
-            hero.setPosition(positions[heros.indexOf(hero)].getX(),positions[heros.indexOf(hero)].getY());
+        for(CalabashBrother calabashBrother:calabashBrothers) {
+            calabashBrother.setPosition(positions[calabashBrothers.indexOf(calabashBrother)].getX(),positions[calabashBrothers.indexOf(calabashBrother)].getY());
         }
+        grandfather.setPosition(positions[7].getX(),positions[7].getY());
 
-        for(Creature hero:heros) {
+        for(CalabashBrother hero:calabashBrothers) {
             Position pos = hero.getPosition();
             battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(hero);
         }
+        Position pos = grandfather .getPosition();
+        battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(grandfather);
         return formationName;
     }
 
-    public ArrayList<Creature> getHeros() {
-        return heros;
+    public ArrayList<CalabashBrother> getCalabashBrothers() {
+        return calabashBrothers;
     }
+
+    public Grandfather getGrandfather() {
+        return grandfather;
+    }
+
 }

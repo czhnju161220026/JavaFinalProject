@@ -12,11 +12,11 @@ import java.util.ArrayList;
 public class Evildoers {
     Snake snake ;
     Scorpion scorpion ;
-    private ArrayList<Creature> evildoers = new ArrayList<Creature>();
+    private ArrayList<Monster> monsters = new ArrayList<Monster>();
 
     public Evildoers(Block[][] battlefield) {
         for(int i = 0;i < 8;i++) {
-            evildoers.add(new Monster(battlefield));
+            monsters.add(new Monster(battlefield));
         }
         snake = new Snake(battlefield);
         scorpion = new Scorpion(battlefield);
@@ -27,11 +27,11 @@ public class Evildoers {
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {
         String formationName = fp.getName();
         Position[] positions = fp.provideFormation();
-        for(Creature badGuy:evildoers) {
-            badGuy.setPosition(1190-positions[evildoers.indexOf(badGuy)].getX(),positions[evildoers.indexOf(badGuy)].getY());
+        for(Creature badGuy: monsters) {
+            badGuy.setPosition(1190-positions[monsters.indexOf(badGuy)].getX(),positions[monsters.indexOf(badGuy)].getY());
         }
 
-        for(Creature badGuy:evildoers) {
+        for(Creature badGuy: monsters) {
             Position pos = badGuy.getPosition();
             battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(badGuy);
         }
@@ -48,7 +48,7 @@ public class Evildoers {
         return scorpion;
     }
 
-    public ArrayList<Creature> getEvildoers() {
-        return evildoers;
+    public ArrayList<Monster> getMonsters() {
+        return monsters;
     }
 }

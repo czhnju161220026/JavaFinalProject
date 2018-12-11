@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import njuczh.Attributes.Position;
 import njuczh.MyAnnotation.TODO;
 
-import java.awt.image.BufferedImage;
 import java.util.concurrent.TimeUnit;
 
 public class Bullet extends Thing implements Runnable{
@@ -14,12 +13,12 @@ public class Bullet extends Thing implements Runnable{
     private String shooterName;//来自的阵营
     private boolean good;
     private Position pos;
-    private int vector;
-    public Bullet(String shooterName,boolean good,Position pos,int vector) {
+    private int direction;
+    public Bullet(String shooterName,boolean good,Position pos,int direction) {
         this.shooterName = shooterName;
         this.good = good;
         this.pos = pos;
-        this.vector = vector;
+        this.direction = direction;
         if(good) {
             image = new Image("bullet.png");
         }
@@ -31,10 +30,11 @@ public class Bullet extends Thing implements Runnable{
     public void display(GraphicsContext gc) {
         gc.drawImage(image,pos.getX(),pos.getY(),10,10);
     }
-    @TODO(todo = "沿着vector指示的方向移动，检测撞击事件")
+
+    @TODO(todo = "沿着指示的方向移动，检测撞击事件")
     public void run() {
         while(pos.getX() > 0 && pos.getX() < 1260 ) {
-            pos.setX(pos.getX()+vector*20);
+            pos.setX(pos.getX()+ direction *20);
             try{
                 TimeUnit.MILLISECONDS.sleep(50);
             }

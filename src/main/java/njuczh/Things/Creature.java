@@ -10,6 +10,8 @@ public abstract class Creature extends Thing{
     protected  int denfensePower;
     protected  int helth;
     protected boolean good;
+    protected int direction;
+    protected boolean moveFinished;
     public int getAttackPower() {
         return attackPower;
     }

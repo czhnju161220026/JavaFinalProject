@@ -86,7 +86,7 @@ public class GameController implements Initializable{
         gameLauncher.execute(gameRound);
     }
     @FXML private void quitGameHandler() {
-        gameLog.appendText("游戏结束\n");
+        gameLog.appendText("游戏结束,准备开始新一轮游戏。\n");
         GraphicsContext gc = gameArea.getGraphicsContext2D();
         gc.drawImage(background,0,0,1260,711);
         isGamming = false;
@@ -95,7 +95,7 @@ public class GameController implements Initializable{
             gameLauncher.shutdown();
             //gameLauncher.shutdownNow();
             while(!gameLauncher.isTerminated()){}
-            System.out.println("该回合结束");
+            gameLog.appendText("该回合结束\n");
         }
         catch (NullPointerException e) {
             e.printStackTrace();
@@ -104,6 +104,12 @@ public class GameController implements Initializable{
             battlefield = new Battlefield();
             heroes = new Heroes(battlefield.getBattlefield());
             evildoers = new Evildoers(battlefield.getBattlefield());
+            currentFormationHero = 3;
+            currentFormationEvil = 3;
+            heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
+            evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
+            battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
+            gameLog.appendText("游戏准备开始.葫芦娃和妖怪摆好了长蛇阵！\n");
         }
         Platform.runLater(new Runnable() {
             public void run() {
@@ -169,6 +175,5 @@ public class GameController implements Initializable{
         heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
         evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
         battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
-
     }
 }
