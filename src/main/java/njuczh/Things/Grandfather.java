@@ -1,8 +1,11 @@
 package njuczh.Things;
+import njuczh.Battle.Block;
 import njuczh.Skills.*;
 import javafx.scene.image.Image;
 public class Grandfather extends Creature implements Cure,Runnable{
-    public Grandfather() {
+    private final Block[][] battlefield;
+    public Grandfather(Block[][] battlefield) {
+        this.battlefield = battlefield;
         image = new Image("grandfather.png");
         attackPower = 0;
         denfensePower = 0;

@@ -1,10 +1,14 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
+import njuczh.Battle.Battlefield;
+import njuczh.Battle.Block;
 import njuczh.Skills.Summon;
 
 public class Scorpion extends Creature implements Runnable, Summon {
-    public Scorpion() {
+    private final Block[][] battlefield;
+    public Scorpion(Block[][] battlefield) {
+        this.battlefield = battlefield;
         image = new Image("scorpion.png");
         good = false;
     }

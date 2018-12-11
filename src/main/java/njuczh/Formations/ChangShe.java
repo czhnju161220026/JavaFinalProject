@@ -4,8 +4,8 @@ import njuczh.Attributes.Position;
 
 public class ChangShe implements FormationProvider{
     public Position[] provideFormation() {
-        Position[] positions ={new Position(1,5),new Position(2,5),new Position(3,5), new Position(4,5),
-                new Position(5,5),new Position(6,5),new Position(7,5),new Position(8,5)};
+        Position[] positions ={new Position(5*70,1*70),new Position(5*70,2*70),new Position(5*70,3*70), new Position(5*70,4*70),
+                new Position(5*70,5*70),new Position(5*70,6*70),new Position(5*70,7*70),new Position(5*70,8*70)};
         return positions;
     }
 

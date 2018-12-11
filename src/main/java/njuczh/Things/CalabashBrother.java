@@ -1,4 +1,5 @@
 package njuczh.Things;
+import njuczh.Battle.Block;
 import njuczh.Skills.*;
 import njuczh.Attributes.Color;
 import javafx.scene.image.Image;
@@ -7,8 +8,10 @@ import java.util.Comparator;
 
 public class CalabashBrother extends Creature implements Comparator<CalabashBrother>,Shoot,Runnable{
     private Color color;
-    public CalabashBrother(Color color) {
+    private final Block[][] battlefield;
+    public CalabashBrother(Color color,Block[][] battlefield) {
         this.color = color;
+        this.battlefield = battlefield;
         int index = color.ordinal()+1;
         image = new Image(""+index+".png");
         attackPower = 0;

@@ -3,6 +3,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -14,13 +16,17 @@ import javafx.scene.image.*;
 import javafx.scene.canvas.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import njuczh.Battle.Battlefield;
 import njuczh.Battle.Evildoers;
 import njuczh.Battle.Heroes;
 import njuczh.Formations.*;
+import njuczh.MyAnnotation.TODO;
 import njuczh.Things.Bullet;
 
-
+/*负责处理GUI的逻辑 */
 public class GameController implements Initializable{
     @FXML  Button startGame;
     @FXML  Button quitGame;
@@ -28,20 +34,22 @@ public class GameController implements Initializable{
     @FXML  Button evildoersChangeFormation;
     @FXML  TextArea gameLog;
     @FXML  Canvas gameArea;
+    @FXML  AnchorPane aPane;
     private Image background = new Image("background.png");
-    private Heroes heroes = new Heroes();
-    private Evildoers evildoers = new Evildoers();
     private Battlefield battlefield = new Battlefield();
+    private Heroes heroes = new Heroes(battlefield.getBattlefield());
+    private Evildoers evildoers = new Evildoers(battlefield.getBattlefield());
     private ArrayList<FormationProvider> providers = new ArrayList<FormationProvider>();
     private int currentFormationHero = 3;
     private int currentFormationEvil = 3;
-    boolean isGamming = false;
+    private boolean isGamming = false;
+    private GameRound gameRound;
+    private ExecutorService gameLauncher = Executors.newSingleThreadExecutor();
 
-    /*
-    *内部类：处理键盘事件
-    * 使用内部类是为了方便的使用GameController中的私有成员
-    * 收到空格按键后，游戏开始
-    * */
+
+    //内部类：处理键盘事件
+    //使用内部类是为了方便的使用GameController中的私有成员
+    //收到空格按键后，游戏开始
     class KeyBoredHandler implements EventHandler<KeyEvent> {
         public void handle(KeyEvent event) {
             if(event.getCode() == KeyCode.SPACE&&!isGamming) {
@@ -50,8 +58,21 @@ public class GameController implements Initializable{
             System.out.println(event.getCode());
         }
     }
+
+    //内部类：处理用户在游戏途中关闭窗口导致有线程未释放的情况
+    //调用quitGameHandler来清理线程
+    //然后退出
+    class ClickCloseHandler implements EventHandler<WindowEvent> {
+        public void handle(WindowEvent event) {
+            System.out.println("用户强制退出！");
+            quitGameHandler();
+            System.exit(0);
+        }
+    }
     //用户按下按钮或者通过键盘SPACE触发之后，自动将焦点设置到游戏区域
     @FXML private void startGameHandler() {
+        Stage stage = (Stage)aPane.getScene().getWindow();
+        stage.setOnCloseRequest(new ClickCloseHandler());
         gameLog.appendText("游戏开始!\n");
         isGamming = true;
         Platform.runLater(new Runnable() {
@@ -59,12 +80,31 @@ public class GameController implements Initializable{
                 gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
             }
         });
-
         //游戏正式开始，开始随机移动和战斗
+        gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
+        gameLauncher = Executors.newSingleThreadExecutor();
+        gameLauncher.execute(gameRound);
     }
     @FXML private void quitGameHandler() {
         gameLog.appendText("游戏结束\n");
+        GraphicsContext gc = gameArea.getGraphicsContext2D();
+        gc.drawImage(background,0,0,1260,711);
         isGamming = false;
+        try{
+            gameRound.endGame();
+            gameLauncher.shutdown();
+            //gameLauncher.shutdownNow();
+            while(!gameLauncher.isTerminated()){}
+            System.out.println("该回合结束");
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+        finally {
+            battlefield = new Battlefield();
+            heroes = new Heroes(battlefield.getBattlefield());
+            evildoers = new Evildoers(battlefield.getBattlefield());
+        }
         Platform.runLater(new Runnable() {
             public void run() {
                 gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
@@ -129,5 +169,6 @@ public class GameController implements Initializable{
         heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
         evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
         battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
+
     }
 }

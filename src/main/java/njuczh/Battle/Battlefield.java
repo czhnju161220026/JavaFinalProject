@@ -1,6 +1,8 @@
 package njuczh.Battle;
 
+import javafx.geometry.Pos;
 import javafx.scene.canvas.GraphicsContext;
+import njuczh.Attributes.Position;
 import njuczh.Things.Creature;
 
 public class Battlefield {
@@ -23,7 +25,9 @@ public class Battlefield {
         for(int i = 0; i < 10;i++) {
             for(int j = 0;j < 18;j++) {
                 if(!battlefield[i][j].isEmpty()) {
-                    gc.drawImage(battlefield[i][j].getImage(),j*70,i*70,70,70);
+                    Creature creature = battlefield[i][j].getCreature();
+                    Position pos = creature.getPosition();
+                    gc.drawImage(battlefield[i][j].getImage(),pos.getX(),pos.getY(),70,70);
                 }
             }
         }

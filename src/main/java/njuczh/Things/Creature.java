@@ -1,6 +1,8 @@
 package njuczh.Things;
 import njuczh.Attributes.*;
 import javafx.scene.image.Image;
+import njuczh.Battle.Block;
+
 public abstract class Creature extends Thing{
     private Position position= new Position();
     protected Image image;

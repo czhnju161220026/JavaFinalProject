@@ -1,9 +1,12 @@
 package njuczh.Things;
 
+import njuczh.Battle.Block;
 import njuczh.Skills.Cure;
 import javafx.scene.image.Image;
 public class Snake extends Creature implements Runnable, Cure {
-    public Snake() {
+    private final Block[][] battlefield;
+    public Snake(Block[][] battlefield) {
+        this.battlefield = battlefield;
         image = new Image("snake.png");
         good = false;
     }

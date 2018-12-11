@@ -1,10 +1,13 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
+import njuczh.Battle.Block;
 import njuczh.Skills.Shoot;
 
 public class Monster extends Creature implements Runnable, Shoot {
-    public Monster() {
+    private final Block[][] battlefield;
+    public Monster(Block[][] battlefield) {
+        this.battlefield = battlefield;
         image = new Image("monster.png");
         good = false;
     }

@@ -8,7 +8,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="770.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="njuczh.GUI.GameController">
+<AnchorPane fx:id="aPane" prefHeight="770.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="njuczh.GUI.GameController">
    <children>
       <GridPane layoutX="4.0" layoutY="7.0" prefHeight="770.0" prefWidth="1583.0">
         <columnConstraints>
