@@ -1,4 +1,4 @@
-package njuczh.Creatures;
+package njuczh.Things;
 
 import javafx.scene.image.Image;
 import njuczh.Skills.Shoot;
@@ -6,6 +6,7 @@ import njuczh.Skills.Shoot;
 public class Monster extends Creature implements Runnable, Shoot {
     public Monster() {
         image = new Image("monster.png");
+        good = false;
     }
     public String toString() {
         return "小怪";
@@ -14,7 +15,7 @@ public class Monster extends Creature implements Runnable, Shoot {
     public Image getImage() {
         return image;
     }
-    public void shoot() { }
+    public Bullet shoot() {return null;}
     public void run() { }
 
 }

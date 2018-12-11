@@ -1,12 +1,13 @@
-package njuczh.Creatures;
+package njuczh.Things;
 import njuczh.Attributes.*;
 import javafx.scene.image.Image;
-public abstract class Creature {
+public abstract class Creature extends Thing{
     private Position position= new Position();
     protected Image image;
     protected  int attackPower;
     protected  int denfensePower;
     protected  int helth;
+    protected boolean good;
     public int getAttackPower() {
         return attackPower;
     }
@@ -27,4 +28,7 @@ public abstract class Creature {
         return  position;
     }
     public abstract Image getImage();
+    public boolean getProperty() {
+        return good;
+    }
 }

@@ -1,4 +1,4 @@
-package njuczh.Creatures;
+package njuczh.Things;
 import njuczh.Skills.*;
 import njuczh.Attributes.Color;
 import javafx.scene.image.Image;
@@ -14,6 +14,7 @@ public class CalabashBrother extends Creature implements Comparator<CalabashBrot
         attackPower = 0;
         denfensePower = 0;
         helth = 0;
+        good = true;
     }
     @Override
     public Image getImage() {
@@ -38,5 +39,5 @@ public class CalabashBrother extends Creature implements Comparator<CalabashBrot
     public void run() {
 
     }
-    public void shoot() { }
+    public Bullet shoot() { return null;}
 }

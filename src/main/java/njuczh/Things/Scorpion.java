@@ -1,12 +1,12 @@
-package njuczh.Creatures;
+package njuczh.Things;
 
 import javafx.scene.image.Image;
-import njuczh.Skills.Shoot;
 import njuczh.Skills.Summon;
 
 public class Scorpion extends Creature implements Runnable, Summon {
     public Scorpion() {
         image = new Image("scorpion.png");
+        good = false;
     }
     public String toString() {
         return "蝎子";

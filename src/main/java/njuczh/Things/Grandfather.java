@@ -1,12 +1,13 @@
-package njuczh.Creatures;
+package njuczh.Things;
 import njuczh.Skills.*;
 import javafx.scene.image.Image;
-public class Grandfather extends Creature implements Cheer,Runnable{
+public class Grandfather extends Creature implements Cure,Runnable{
     public Grandfather() {
-        image = new Image("grandfather.jpg");
+        image = new Image("grandfather.png");
         attackPower = 0;
         denfensePower = 0;
         helth = 0;
+        good = true;
     }
 
     @Override
