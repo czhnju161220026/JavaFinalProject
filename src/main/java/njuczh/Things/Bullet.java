@@ -2,6 +2,7 @@ package njuczh.Things;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import njuczh.Attributes.BulletAttribute;
 import njuczh.Attributes.Position;
 import njuczh.MyAnnotation.TODO;
 
@@ -9,28 +10,40 @@ import java.util.concurrent.TimeUnit;
 
 public class Bullet extends Thing implements Runnable{
     private Image image;//攻击
-    private int attackPower;//射击者名字
-    private String shooterName;//来自的阵营
+    private int attackPower;
+    private String shooterName;
     private boolean good;
     private Position pos;
     private int direction;
-    public Bullet(String shooterName,boolean good,Position pos,int direction) {
+    private boolean isDone = false;
+    private BulletAttribute attribute;
+    public Bullet(String shooterName, BulletAttribute attribute, Position pos) {
         this.shooterName = shooterName;
-        this.good = good;
         this.pos = pos;
-        this.direction = direction;
-        if(good) {
-            image = new Image("bullet.png");
+        this.attribute = attribute;
+        image = new Image(attribute.getImagePath());
+        if(attribute==BulletAttribute.EVIL) {
+            good = false;
+            direction = -1;
         }
         else {
-            image = new Image("bullet2.png");
+            good = true;
+            direction = 1;
         }
     }
     @TODO(todo = "在图像上绘制自己")
     public void display(GraphicsContext gc) {
-        gc.drawImage(image,pos.getX(),pos.getY(),10,10);
+        if(attribute == BulletAttribute.FIRE || attribute == BulletAttribute.WATER) {
+            gc.drawImage(image,pos.getX(),pos.getY()+15,20,40);
+        }
+        else {
+            gc.drawImage(image,pos.getX(),pos.getY()+30,10,10);
+        }
     }
 
+    public boolean isDone() {
+        return isDone;
+    }
     @TODO(todo = "沿着指示的方向移动，检测撞击事件")
     public void run() {
         while(pos.getX() > 0 && pos.getX() < 1260 ) {
@@ -42,6 +55,7 @@ public class Bullet extends Thing implements Runnable{
                 e.printStackTrace();
             }
         }
-        System.out.println("Bullet done");
+        isDone = true;
+        //System.out.println("Bullet done");
     }
 }

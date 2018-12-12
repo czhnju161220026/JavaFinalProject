@@ -3,6 +3,7 @@ package njuczh.GUI;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import njuczh.Battle.Battlefield;
 import njuczh.Battle.Evildoers;
 import njuczh.Battle.Heroes;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 //一回合游戏
 @Author
@@ -23,12 +25,14 @@ public class GameRound implements Runnable{
     private Snake snake;
     private Scorpion scorpion;
     private Battlefield battlefield;
-    private ArrayList<Bullet> bullets;
+    private ArrayList<Bullet> heroBullets;
+    private ArrayList<Bullet> evilBullets;
     private GraphicsContext gc;
     private TextArea textArea;
     private Image background= new Image("background.png");
     private boolean isGamming = true;
-    private ExecutorService bulletExcutor;
+    private ExecutorService heroBulletExecutor;
+    private ExecutorService evilBulletExecutor;
     private ExecutorService creatureExcutor;
 
     public GameRound(Heroes heroes,Evildoers evildoers,Battlefield battlefield,GraphicsContext gc,TextArea textArea) {
@@ -40,31 +44,67 @@ public class GameRound implements Runnable{
         this.battlefield = battlefield;
         this.gc = gc;
         this.textArea = textArea;
-        bullets = new ArrayList<Bullet>();
-        bulletExcutor = Executors.newCachedThreadPool();
+        heroBullets = new ArrayList<Bullet>();
+        evilBullets = new ArrayList<Bullet>();
+        heroBulletExecutor = Executors.newCachedThreadPool();
+        evilBulletExecutor = Executors.newCachedThreadPool();
         creatureExcutor = Executors.newCachedThreadPool();
+        CalabashBrother.setBullets(heroBullets);
+        CalabashBrother.setBulletExecutor(heroBulletExecutor);
+        Monster.setBullets(evilBullets);
+        Monster.setBulletExecutor(evilBulletExecutor);
+
     }
 
     private void displayAll() {
         int count = 0;
+        long startTime = 0;
+        long endTime = 0;
+        int FPS = 0;
+        ArrayList<Bullet> garbageCollector = new ArrayList<Bullet>();
         while(isGamming) {
             try {
+                startTime = System.currentTimeMillis();
                 gc.drawImage(background,0,0,1260,711);
                 battlefield.displayBattlefield(gc);
-                for(Bullet bullet:bullets) {
-                    bullet.display(gc);
-                }
-                TimeUnit.MILLISECONDS.sleep(20);
-                count++;
-                if(count==25) {
-                    count = 0;
-                    for(CalabashBrother cb:calabashBrothers) {
-                        cb.shoot();
+                for(Bullet bullet: heroBullets) {
+                    if(!bullet.isDone()) {
+                        bullet.display(gc);
                     }
                 }
+                for(Bullet bullet: evilBullets) {
+                    if(!bullet.isDone()) {
+                        bullet.display(gc);
+                    }
+                }
+                gc.setStroke(Color.WHITE);
+                gc.strokeText("FPS: "+FPS,5,30); //绘制帧数
+                TimeUnit.MILLISECONDS.sleep(25);
+                endTime = System.currentTimeMillis();
+                FPS = (int)(1000/(endTime-startTime));  //计算瞬时帧数
             }
             catch (Exception e) {
                 e.printStackTrace();
+            }
+            finally {
+                //清理射出屏幕和已经命中的子弹
+                synchronized (heroBullets) {
+                    heroBullets.removeIf(new Predicate<Bullet>() {
+                        @Override
+                        public boolean test(Bullet bullet) {
+                            return bullet.isDone();
+                        }
+                    });
+                }
+
+                synchronized (evilBullets) {
+                    evilBullets.removeIf(new Predicate<Bullet>() {
+                        @Override
+                        public boolean test(Bullet bullet) {
+                            return bullet.isDone();
+                        }
+                    });
+                }
             }
         }
     }
@@ -89,7 +129,7 @@ public class GameRound implements Runnable{
     @TODO(todo="完成一些游戏结束后的清理")
     public void endGame() {
         isGamming = false;
-        bulletExcutor.shutdown();
+        //heroBulletExecutor.shutdown();
         creatureExcutor.shutdown();
     }
 }

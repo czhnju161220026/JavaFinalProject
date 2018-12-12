@@ -49,13 +49,28 @@ public class GameController implements Initializable{
 
     //内部类：处理键盘事件
     //使用内部类是为了方便的使用GameController中的私有成员
-    //收到空格按键后，游戏开始
+    //游戏未开始时：上方向键葫芦娃变阵，下方向键妖怪变阵；
+    //空格键游戏开始，开始后不能变阵；
+    //游戏中ESC可以提前结束本轮
     class KeyBoredHandler implements EventHandler<KeyEvent> {
         public void handle(KeyEvent event) {
-            if(event.getCode() == KeyCode.SPACE&&!isGamming) {
-                startGameHandler();
+            if(!isGamming) {
+                if(event.getCode()==KeyCode.SPACE) {
+                    startGameHandler();
+                }
+                if(event.getCode()==KeyCode.UP) {
+                    heroesChangeFormationHandler();
+                }
+                if(event.getCode()==KeyCode.DOWN) {
+                    evildoersChangeFormationHandler();
+                }
             }
-            System.out.println(event.getCode());
+            else {
+                if(event.getCode()==KeyCode.ESCAPE) {
+                    quitGameHandler();
+                }
+            }
+            //System.out.println(event.getCode());
         }
     }
 
@@ -83,6 +98,7 @@ public class GameController implements Initializable{
         //游戏正式开始，开始随机移动和战斗
         gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
         gameLauncher = Executors.newSingleThreadExecutor();
+        gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
         gameLauncher.execute(gameRound);
     }
     @FXML private void quitGameHandler() {
@@ -93,7 +109,6 @@ public class GameController implements Initializable{
         try{
             gameRound.endGame();
             gameLauncher.shutdown();
-            //gameLauncher.shutdownNow();
             while(!gameLauncher.isTerminated()){}
             gameLog.appendText("该回合结束\n");
         }

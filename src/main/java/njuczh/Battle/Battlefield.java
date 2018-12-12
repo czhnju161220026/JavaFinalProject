@@ -1,9 +1,12 @@
 package njuczh.Battle;
 
-import javafx.geometry.Pos;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import njuczh.Attributes.Position;
 import njuczh.Things.Creature;
+
+
 
 public class Battlefield {
     private Block[][] battlefield= new Block[10][18];
@@ -28,6 +31,11 @@ public class Battlefield {
                     Creature creature = battlefield[i][j].getCreature();
                     Position pos = creature.getPosition();
                     gc.drawImage(battlefield[i][j].getImage(),pos.getX(),pos.getY(),70,70);
+                    gc.setFill(Color.RED);
+                    gc.fillRoundRect(pos.getX()+3,pos.getY(),64,5,10,10);
+                    gc.setFill(Color.color(0.3,1.0,0.69));
+                    float ratio = creature.getHelthRatio();
+                    gc.fillRoundRect(pos.getX()+3,pos.getY(),64*ratio,5,10,10);
                 }
             }
         }

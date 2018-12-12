@@ -15,9 +15,9 @@ public class Grandfather extends Creature implements Cure,Runnable{
         image = new Image("grandfather.png");
         attackPower = 0;
         denfensePower = 0;
-        helth = 0;
+        helth = 10;
+        maxHelth = 10;
         good = true;
-        direction = 1;
         moveFinished = false;
     }
 
@@ -34,7 +34,7 @@ public class Grandfather extends Creature implements Cure,Runnable{
     public void run() {
         Random random = new Random();
         //现阶段采取避让策略
-        while(true) {
+        while(helth!=0) {
             int choice = random.nextInt()%4;
             int i = getPosition().getY()/70;
             int j = getPosition().getX()/70;
@@ -44,7 +44,6 @@ public class Grandfather extends Creature implements Cure,Runnable{
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j-1].creatureEnter(this);
                         setPosition((j-1)*70,i*70);
-                        direction = -1;
                     }
                 }
                 else if(choice == 1 && i>0) {
@@ -59,7 +58,6 @@ public class Grandfather extends Creature implements Cure,Runnable{
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j+1].creatureEnter(this);
                         setPosition((j+1)*70,i*70);
-                        direction = 1;
                     }
                 }
                 else if(choice == 3 && i<9) {

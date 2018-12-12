@@ -3,6 +3,7 @@ package njuczh.Battle;
 import njuczh.Attributes.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
 
 import njuczh.Attributes.Position;
 import njuczh.Formations.FormationProvider;
@@ -15,9 +16,14 @@ public class Heroes {
 
     public Heroes(Block[][] battlefield) {
         calabashBrothers = new ArrayList<CalabashBrother>();
-        calabashBrothers.addAll(Arrays.asList(new CalabashBrother(Color.RED,battlefield),new CalabashBrother(Color.ORANGE,battlefield),
-                new CalabashBrother(Color.YELLOW,battlefield), new CalabashBrother(Color.GREEN,battlefield),new CalabashBrother(Color.BLUE,battlefield),
-                new CalabashBrother(Color.CYAN,battlefield),new CalabashBrother(Color.PURPLE,battlefield)));
+        calabashBrothers.addAll(Arrays.asList(
+                new CalabashBrother(Color.RED,battlefield),
+                new CalabashBrother(Color.ORANGE,battlefield),
+                new CalabashBrother(Color.YELLOW,battlefield),
+                new CalabashBrother(Color.GREEN,battlefield),
+                new CalabashBrother(Color.BLUE,battlefield),
+                new CalabashBrother(Color.CYAN,battlefield),
+                new CalabashBrother(Color.PURPLE,battlefield)));
         grandfather = new Grandfather(battlefield);
     }
 

@@ -9,8 +9,8 @@ public abstract class Creature extends Thing{
     protected  int attackPower;
     protected  int denfensePower;
     protected  int helth;
+    protected  int maxHelth;
     protected boolean good;
-    protected int direction;
     protected boolean moveFinished;
     public int getAttackPower() {
         return attackPower;
@@ -23,6 +23,15 @@ public abstract class Creature extends Thing{
     }
     public void setDenfensePower(int denfensePower) {
         this.denfensePower = denfensePower;
+    }
+    public float getHelthRatio() {
+        return (float)helth / (float)maxHelth;
+    }
+    public int getHelth() {
+        return helth;
+    }
+    public void setHelth(int helth) {
+        this.helth = helth;
     }
     public void setPosition(int x,int y) {
         position.setX(x);
