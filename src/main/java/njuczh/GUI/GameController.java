@@ -98,7 +98,6 @@ public class GameController implements Initializable{
             }
         });
         //游戏正式开始，开始随机移动和战斗
-        gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
         gameLauncher = Executors.newSingleThreadExecutor();
         gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
         gameLauncher.execute(gameRound);

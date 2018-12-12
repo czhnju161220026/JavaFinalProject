@@ -6,7 +6,7 @@ import njuczh.Things.Creature;
 
 @TODO(todo="子弹击中某个生物的事件")
 public class BulletHit {
-    String result;
+    private String result;
     public BulletHit(Bullet bullet, Creature creature) {
         StringBuilder stringBuilder = new StringBuilder("");
         int attackPower = bullet.getAttackPower();

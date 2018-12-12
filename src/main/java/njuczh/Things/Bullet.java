@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Bullet extends Thing implements Runnable{
-    private Image image;//攻击
+    private Image image;
     private int attackPower;
     private String shooterName;
     private boolean good;
@@ -21,6 +21,7 @@ public class Bullet extends Thing implements Runnable{
     private int direction;
     private boolean isDone = false;
     private final Block[][] battlefield;
+    private static Image explodeImage = new Image("explode.png");
 
     private BulletAttribute attribute;
     public Bullet(String shooterName, BulletAttribute attribute, Position pos,Block[][] battlefield) {
@@ -90,10 +91,6 @@ public class Bullet extends Thing implements Runnable{
                         String result = bulletHit.getResult();
                         if(creature.isDead()) {
                             battlefield[i][j].creatureLeave();
-                        }
-                        TextArea gameLog = GameRound.getGameLog();
-                        synchronized (gameLog) {
-                            gameLog.appendText(result);
                         }
                     }
                 }

@@ -28,7 +28,7 @@ public class GameRound implements Runnable{
     private ArrayList<Bullet> heroBullets;
     private ArrayList<Bullet> evilBullets;
     private GraphicsContext gc;
-    private static TextArea textArea = null;
+    private TextArea textArea = null;
     private Image background= new Image("background.png");
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
@@ -54,11 +54,8 @@ public class GameRound implements Runnable{
         Monster.setBullets(evilBullets);
         Monster.setBulletExecutor(evilBulletExecutor);
 
+    }
 
-    }
-    public static TextArea getGameLog() {
-        return textArea;
-    }
     private void displayAll() {
         int count = 0;
         long startTime = 0;
