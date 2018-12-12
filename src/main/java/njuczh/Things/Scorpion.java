@@ -1,8 +1,6 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
-import njuczh.Attributes.Position;
-import njuczh.Battle.Battlefield;
 import njuczh.Battle.Block;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.Summon;
@@ -17,8 +15,8 @@ public class Scorpion extends Creature implements Runnable, Summon {
         image = new Image("scorpion.png");
         good = false;
         moveFinished = false;
-        helth = 5;
-        maxHelth = 10;
+        health = 300;
+        maxHelth = 300;
     }
     public String toString() {
         return "蝎子";
@@ -33,7 +31,7 @@ public class Scorpion extends Creature implements Runnable, Summon {
     public void run() {
         Random random = new Random();
         //现阶段采取避让策略
-        while(helth!=0) {
+        while(health !=0) {
             int choice = random.nextInt()%4;
             int i = getPosition().getY()/70;
             int j = getPosition().getX()/70;
@@ -42,28 +40,28 @@ public class Scorpion extends Creature implements Runnable, Summon {
                     if(battlefield[i][j-1].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j-1].creatureEnter(this);
-                        setPosition((j-1)*70,i*70);
+                        setPosition((j-1)*72,i*72);
                     }
                 }
                 else if(choice == 1 && i>0) {
                     if(battlefield[i-1][j].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i-1][j].creatureEnter(this);
-                        setPosition(j*70,(i-1)*70);
+                        setPosition(j*72,(i-1)*72);
                     }
                 }
                 else if(choice == 2 && j<17) {
                     if(battlefield[i][j+1].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j+1].creatureEnter(this);
-                        setPosition((j+1)*70,i*70);
+                        setPosition((j+1)*72,i*72);
                     }
                 }
                 else if(choice == 3 && i<9) {
                     if( battlefield[i+1][j].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i+1][j].creatureEnter(this);
-                        setPosition(j*70,(i+1)*70);
+                        setPosition(j*72,(i+1)*72);
                     }
                 }
             }

@@ -2,11 +2,15 @@ package njuczh.Things;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.control.TextArea;
 import njuczh.Attributes.BulletAttribute;
 import njuczh.Attributes.Position;
+import njuczh.Battle.Block;
+import njuczh.Battle.BulletHit;
+import njuczh.GUI.GameRound;
 import njuczh.MyAnnotation.TODO;
-
 import java.util.concurrent.TimeUnit;
+
 
 public class Bullet extends Thing implements Runnable{
     private Image image;//攻击
@@ -16,11 +20,15 @@ public class Bullet extends Thing implements Runnable{
     private Position pos;
     private int direction;
     private boolean isDone = false;
+    private final Block[][] battlefield;
+
     private BulletAttribute attribute;
-    public Bullet(String shooterName, BulletAttribute attribute, Position pos) {
+    public Bullet(String shooterName, BulletAttribute attribute, Position pos,Block[][] battlefield) {
         this.shooterName = shooterName;
         this.pos = pos;
         this.attribute = attribute;
+        this.battlefield = battlefield;
+        attackPower = 20;
         image = new Image(attribute.getImagePath());
         if(attribute==BulletAttribute.EVIL) {
             good = false;
@@ -37,17 +45,59 @@ public class Bullet extends Thing implements Runnable{
             gc.drawImage(image,pos.getX(),pos.getY()+15,20,40);
         }
         else {
-            gc.drawImage(image,pos.getX(),pos.getY()+30,10,10);
+            gc.drawImage(image,pos.getX(),pos.getY()+31,10,10);
         }
     }
-
+    public void setDone() {
+        isDone = true;
+    }
     public boolean isDone() {
         return isDone;
     }
+
+    public int getAttackPower() {
+        return attackPower;
+    }
+
+    public String getShooterName() {
+        return shooterName;
+    }
+
+    public boolean isGood() {
+        return good;
+    }
+
+    public BulletAttribute getAttribute() {
+        return attribute;
+    }
     @TODO(todo = "沿着指示的方向移动，检测撞击事件")
     public void run() {
-        while(pos.getX() > 0 && pos.getX() < 1260 ) {
-            pos.setX(pos.getX()+ direction *20);
+        int i = pos.getY()/72;
+        int j = pos.getX()/72;
+        while(!isDone && pos.getX() > 0 && pos.getX() < 1296) {
+            pos.setX(pos.getX()+ direction *18);
+            if(pos.getX()%72 == 0) {
+                j = pos.getX()/72;
+                if(j==18) {
+                    break;
+                }
+            }
+            synchronized (battlefield) {
+                if(!battlefield[i][j].isEmpty()) {
+                    Creature creature = battlefield[i][j].getCreature();
+                    if(good!=creature.getProperty()) {
+                        BulletHit bulletHit = new BulletHit(this,creature);
+                        String result = bulletHit.getResult();
+                        if(creature.isDead()) {
+                            battlefield[i][j].creatureLeave();
+                        }
+                        TextArea gameLog = GameRound.getGameLog();
+                        synchronized (gameLog) {
+                            gameLog.appendText(result);
+                        }
+                    }
+                }
+            }
             try{
                 TimeUnit.MILLISECONDS.sleep(50);
             }

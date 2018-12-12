@@ -23,10 +23,12 @@ import njuczh.Battle.Battlefield;
 import njuczh.Battle.Evildoers;
 import njuczh.Battle.Heroes;
 import njuczh.Formations.*;
+import njuczh.MyAnnotation.Author;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Things.Bullet;
 
 /*负责处理GUI的逻辑 */
+@Author(name = "崔子寒")
 public class GameController implements Initializable{
     @FXML  Button startGame;
     @FXML  Button quitGame;
@@ -102,9 +104,8 @@ public class GameController implements Initializable{
         gameLauncher.execute(gameRound);
     }
     @FXML private void quitGameHandler() {
-        gameLog.appendText("游戏结束,准备开始新一轮游戏。\n");
         GraphicsContext gc = gameArea.getGraphicsContext2D();
-        gc.drawImage(background,0,0,1260,711);
+        gc.drawImage(background,0,0,1296,721);
         isGamming = false;
         try{
             gameRound.endGame();
@@ -124,6 +125,7 @@ public class GameController implements Initializable{
             heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
             evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
             battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
+            gameLog.appendText("游戏结束,准备开始新一轮游戏。\n");
             gameLog.appendText("游戏准备开始.葫芦娃和妖怪摆好了长蛇阵！\n");
         }
         Platform.runLater(new Runnable() {
@@ -138,7 +140,7 @@ public class GameController implements Initializable{
             currentFormationHero = (currentFormationHero+1)%providers.size();
             battlefield.clearBattlefield();
             GraphicsContext gc = gameArea.getGraphicsContext2D();
-            gc.drawImage(background,0,0,1260,711);
+            gc.drawImage(background,0,0,1296,721);
             String formationName = heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
             evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
             gameLog.appendText(formationName+'\n');
@@ -156,7 +158,7 @@ public class GameController implements Initializable{
             currentFormationEvil = (currentFormationEvil+1)%providers.size();
             battlefield.clearBattlefield();
             GraphicsContext gc = gameArea.getGraphicsContext2D();
-            gc.drawImage(background,0,0,1260,711);
+            gc.drawImage(background,0,0,1296,721);
             String formationName = evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
             heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
             gameLog.appendText(formationName+'\n');
@@ -178,7 +180,7 @@ public class GameController implements Initializable{
         evildoersChangeFormation.setText("妖怪变阵");
         GraphicsContext gc = gameArea.getGraphicsContext2D();
         /*二维空间大小10单位 x 18单位,单位大小为70 x 70*/
-        gc.drawImage(background,0,0,1260,711);
+        gc.drawImage(background,0,0,1296,721);
         Platform.runLater(new Runnable() {
             public void run() {
                 gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域

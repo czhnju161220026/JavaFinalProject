@@ -22,8 +22,8 @@ public class Monster extends Creature implements Runnable, Shoot {
         image = new Image("monster.png");
         good = false;
         moveFinished = false;
-        helth = 7;
-        maxHelth = 10;
+        health = 30;
+        maxHelth = 30;
     }
 
     public String toString() {
@@ -48,37 +48,37 @@ public class Monster extends Creature implements Runnable, Shoot {
         Random random = new Random();
         //现阶段采取避让策略
         boolean timeToShoot = false;
-        while(helth!=0) {
+        while(health !=0) {
             int choice = random.nextInt()%4;
-            int i = getPosition().getY()/70;
-            int j = getPosition().getX()/70;
+            int i = getPosition().getY()/72;
+            int j = getPosition().getX()/72;
             synchronized (battlefield) {
                 if(choice == 0 && j>0) {
                     if(battlefield[i][j-1].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j-1].creatureEnter(this);
-                        setPosition((j-1)*70,i*70);
+                        setPosition((j-1)*72,i*72);
                     }
                 }
                 else if(choice == 1 && i>0) {
                     if(battlefield[i-1][j].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i-1][j].creatureEnter(this);
-                        setPosition(j*70,(i-1)*70);
+                        setPosition(j*72,(i-1)*72);
                     }
                 }
                 else if(choice == 2 && j<17) {
                     if(battlefield[i][j+1].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i][j+1].creatureEnter(this);
-                        setPosition((j+1)*70,i*70);
+                        setPosition((j+1)*72,i*72);
                     }
                 }
                 else if(choice == 3 && i<9) {
                     if( battlefield[i+1][j].isEmpty()) {
                         battlefield[i][j].creatureLeave();
                         battlefield[i+1][j].creatureEnter(this);
-                        setPosition(j*70,(i+1)*70);
+                        setPosition(j*72,(i+1)*72);
                     }
                 }
             }
@@ -95,8 +95,8 @@ public class Monster extends Creature implements Runnable, Shoot {
         }
     }
     public void shoot() {
-        Position bulletPos = new Position(getPosition().getX()+70,getPosition().getY());
-        Bullet bullet = new Bullet(toString(), BulletAttribute.EVIL,bulletPos);
+        Position bulletPos = new Position(getPosition().getX()-72,getPosition().getY());
+        Bullet bullet = new Bullet(toString(), BulletAttribute.EVIL,bulletPos,battlefield);
         bulletExecutor.execute(bullet);
         synchronized (bullets) {
             bullets.add(bullet);

@@ -2,6 +2,7 @@ package njuczh.Battle;
 
 import njuczh.Attributes.Position;
 import njuczh.Formations.FormationProvider;
+import njuczh.MyAnnotation.Author;
 import njuczh.Things.Creature;
 import njuczh.Things.Monster;
 import njuczh.Things.Scorpion;
@@ -9,6 +10,7 @@ import njuczh.Things.Snake;
 
 import java.util.ArrayList;
 
+@Author(name = "崔子寒")
 public class Evildoers {
     Snake snake ;
     Scorpion scorpion ;
@@ -20,20 +22,20 @@ public class Evildoers {
         }
         snake = new Snake(battlefield);
         scorpion = new Scorpion(battlefield);
-        snake.setPosition(17*70,3*70);
-        scorpion.setPosition(17*70,5*70);
+        snake.setPosition(17*72,3*72);
+        scorpion.setPosition(17*72,5*72);
     }
 
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {
         String formationName = fp.getName();
         Position[] positions = fp.provideFormation();
         for(Creature badGuy: monsters) {
-            badGuy.setPosition(1190-positions[monsters.indexOf(badGuy)].getX(),positions[monsters.indexOf(badGuy)].getY());
+            badGuy.setPosition(1224-positions[monsters.indexOf(badGuy)].getX(),positions[monsters.indexOf(badGuy)].getY());
         }
 
         for(Creature badGuy: monsters) {
             Position pos = badGuy.getPosition();
-            battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(badGuy);
+            battlefield[pos.getY()/72][pos.getX()/72].creatureEnter(badGuy);
         }
         battlefield[3][17].creatureEnter(snake);
         battlefield[5][17].creatureEnter(scorpion);

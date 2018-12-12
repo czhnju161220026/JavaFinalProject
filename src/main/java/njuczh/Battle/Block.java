@@ -1,7 +1,9 @@
 package njuczh.Battle;
 import javafx.scene.image.Image;
+import njuczh.MyAnnotation.Author;
 import njuczh.Things.*;
 
+@Author(name = "崔子寒")
 public class Block{
     private Creature creature = null;
     private boolean isEmpty = true;

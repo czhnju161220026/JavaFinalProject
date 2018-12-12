@@ -1,4 +1,8 @@
 package njuczh.Attributes;
+
+import njuczh.MyAnnotation.Author;
+
+@Author(name = "崔子寒")
 public class Position {
     private int x;
     private int y;

@@ -28,7 +28,7 @@ public class GameRound implements Runnable{
     private ArrayList<Bullet> heroBullets;
     private ArrayList<Bullet> evilBullets;
     private GraphicsContext gc;
-    private TextArea textArea;
+    private static TextArea textArea = null;
     private Image background= new Image("background.png");
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
@@ -54,27 +54,33 @@ public class GameRound implements Runnable{
         Monster.setBullets(evilBullets);
         Monster.setBulletExecutor(evilBulletExecutor);
 
-    }
 
+    }
+    public static TextArea getGameLog() {
+        return textArea;
+    }
     private void displayAll() {
         int count = 0;
         long startTime = 0;
         long endTime = 0;
         int FPS = 0;
-        ArrayList<Bullet> garbageCollector = new ArrayList<Bullet>();
         while(isGamming) {
             try {
                 startTime = System.currentTimeMillis();
-                gc.drawImage(background,0,0,1260,711);
+                gc.drawImage(background,0,0,1296,721);
                 battlefield.displayBattlefield(gc);
-                for(Bullet bullet: heroBullets) {
-                    if(!bullet.isDone()) {
-                        bullet.display(gc);
+                synchronized (heroBullets) {
+                    for(Bullet bullet: heroBullets) {
+                        if(!bullet.isDone()) {
+                            bullet.display(gc);
+                        }
                     }
                 }
-                for(Bullet bullet: evilBullets) {
-                    if(!bullet.isDone()) {
-                        bullet.display(gc);
+                synchronized (evilBullets) {
+                    for(Bullet bullet: evilBullets) {
+                        if(!bullet.isDone()) {
+                            bullet.display(gc);
+                        }
                     }
                 }
                 gc.setStroke(Color.WHITE);
@@ -105,6 +111,7 @@ public class GameRound implements Runnable{
                         }
                     });
                 }
+
             }
         }
     }
@@ -130,6 +137,28 @@ public class GameRound implements Runnable{
     public void endGame() {
         isGamming = false;
         //heroBulletExecutor.shutdown();
+        //杀死所有生物，以结束它们的线程
+        for(CalabashBrother cb: calabashBrothers) {
+            cb.kill();
+        }
+        for(Monster monster:monsters) {
+            monster.kill();
+        }
+        for(Bullet bullet:evilBullets) {
+            bullet.setDone();
+        }
+        for(Bullet bullet:heroBullets) {
+            bullet.setDone();
+        }
+        grandfather.kill();
+        snake.kill();
+        scorpion.kill();
         creatureExcutor.shutdown();
+        heroBulletExecutor.shutdown();
+        evilBulletExecutor.shutdown();
+        while(!creatureExcutor.isTerminated()) {}
+        while(!evilBulletExecutor.isTerminated()) {}
+        while(!heroBulletExecutor.isTerminated()) {}
+
     }
 }

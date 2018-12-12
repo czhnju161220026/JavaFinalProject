@@ -7,8 +7,10 @@ import java.util.concurrent.ExecutorService;
 
 import njuczh.Attributes.Position;
 import njuczh.Formations.FormationProvider;
+import njuczh.MyAnnotation.Author;
 import njuczh.Things.*;
 
+@Author(name = "崔子寒")
 public class Heroes {
 
     private ArrayList<CalabashBrother>calabashBrothers;
@@ -37,10 +39,10 @@ public class Heroes {
 
         for(CalabashBrother hero:calabashBrothers) {
             Position pos = hero.getPosition();
-            battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(hero);
+            battlefield[pos.getY()/72][pos.getX()/72].creatureEnter(hero);
         }
         Position pos = grandfather .getPosition();
-        battlefield[pos.getY()/70][pos.getX()/70].creatureEnter(grandfather);
+        battlefield[pos.getY()/72][pos.getX()/72].creatureEnter(grandfather);
         return formationName;
     }
 
