@@ -1,22 +1,23 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
-import njuczh.Battle.Block;
+import njuczh.Attributes.CreatureAttribute;
+import njuczh.Attributes.Position;
+import njuczh.Battle.CreaturesMeet;
 import njuczh.MyAnnotation.TODO;
-import njuczh.Skills.Summon;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class Scorpion extends Creature implements Runnable, Summon {
-    private final Block[][] battlefield;
-    public Scorpion(Block[][] battlefield) {
-        this.battlefield = battlefield;
+public class Scorpion extends Monster implements Runnable {
+    public Scorpion() {
         image = new Image("scorpion.png");
-        good = false;
+        property = CreatureAttribute.BAD;
         moveFinished = false;
-        health = 300;
-        maxHelth = 300;
+        health = 500;
+        maxHelth = 500;
+        attackPower = 60;
+        denfensePower = 40;
     }
     public String toString() {
         return "蝎子";
@@ -26,46 +27,50 @@ public class Scorpion extends Creature implements Runnable, Summon {
         return image;
     }
 
-    public void summon() {}
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
         Random random = new Random();
         //现阶段采取避让策略
         while(health !=0) {
-            int choice = random.nextInt()%4;
-            int i = getPosition().getY()/70;
-            int j = getPosition().getX()/70;
             synchronized (battlefield) {
-                if(choice == 0 && j>0) {
-                    if(battlefield[i][j-1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j-1].creatureEnter(this);
-                        setPosition((j-1)*72,i*72);
+                Position next = nextMove();
+                int i = next.getI();
+                int j = next.getJ();
+                synchronized (battlefield) {
+                    if(battlefield[i][j].isEmpty()) {
+                        move(next);
+                        trace.add(next);
                     }
-                }
-                else if(choice == 1 && i>0) {
-                    if(battlefield[i-1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i-1][j].creatureEnter(this);
-                        setPosition(j*72,(i-1)*72);
-                    }
-                }
-                else if(choice == 2 && j<17) {
-                    if(battlefield[i][j+1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j+1].creatureEnter(this);
-                        setPosition((j+1)*72,i*72);
-                    }
-                }
-                else if(choice == 3 && i<9) {
-                    if( battlefield[i+1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i+1][j].creatureEnter(this);
-                        setPosition(j*72,(i+1)*72);
+                    else {
+                        trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                        Creature creature = battlefield[i][j].getCreature();
+                        if(creature.getProperty()==CreatureAttribute.GOOD) {
+                            meetQueue.enqueue(new CreaturesMeet(this,creature));
+                            DeadCreature dead = new DeadCreature();
+                            if(isDead()) {
+                                battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
+                                dead.setPosition(getPosition().getX(),getPosition().getY());
+                                battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
+                            }
+                            else {
+                                battlefield[i][j].creatureLeave();
+                                dead.setPosition(next.getX(),next.getY());
+                                battlefield[i][j].creatureEnter(dead);
+                            }
+                        }
                     }
                 }
             }
             try{
+                synchronized (this) {
+                    if(cureCount>0&&health>0) {
+                        health+=20;
+                        if(health > maxHelth) {
+                            health = maxHelth;
+                        }
+                    }
+                    cureCount--;
+                }
                 TimeUnit.MILLISECONDS.sleep(1000);
             }
             catch (InterruptedException e) {

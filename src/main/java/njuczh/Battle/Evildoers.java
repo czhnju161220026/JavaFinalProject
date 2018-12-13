@@ -15,15 +15,22 @@ public class Evildoers {
     Snake snake ;
     Scorpion scorpion ;
     private ArrayList<Monster> monsters = new ArrayList<Monster>();
-
-    public Evildoers(Block[][] battlefield) {
+    private static int aliveCount=10;
+    public Evildoers() {
+        aliveCount = 10;
         for(int i = 0;i < 8;i++) {
-            monsters.add(new Monster(battlefield));
+            monsters.add(new Monster());
         }
-        snake = new Snake(battlefield);
-        scorpion = new Scorpion(battlefield);
+        snake = new Snake();
+        scorpion = new Scorpion();
         snake.setPosition(17*72,3*72);
         scorpion.setPosition(17*72,5*72);
+    }
+    public static  boolean allDead() {
+        return aliveCount == 0;
+    }
+    public static void evildoerDie() {
+        aliveCount--;
     }
 
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {

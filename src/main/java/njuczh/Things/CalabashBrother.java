@@ -1,7 +1,7 @@
 package njuczh.Things;
 import njuczh.Attributes.BulletAttribute;
+import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
-import njuczh.Battle.Block;
 import njuczh.Battle.CreaturesMeet;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;
@@ -15,20 +15,26 @@ import java.util.concurrent.TimeUnit;
 
 public class CalabashBrother extends Creature implements Shoot,Runnable{
     private Color color;
-    private final Block[][] battlefield;
+    private int cureCount = 0;
     private  static ExecutorService bulletExecutor=null;
     private  static ArrayList<Bullet> bullets=null;
 
-    public CalabashBrother(Color color,Block[][] battlefield) {
+    public boolean isCured() {
+        return cureCount > 0;
+    }
+
+    public void setCure() {
+        cureCount = 3;
+    }
+    public CalabashBrother(Color color) {
         this.color = color;
-        this.battlefield = battlefield;
         int index = color.ordinal()+1;
         image = new Image(""+index+".png");
-        attackPower = 0;
-        denfensePower = 0;
-        health = 100;
-        maxHelth = 100;
-        good = true;
+        attackPower = 30;
+        denfensePower = 30;
+        health = 400;
+        maxHelth = 400;
+        property = CreatureAttribute.GOOD;
     }
 
     @Override
@@ -56,21 +62,51 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
     @Override
     Position nextMove() {
         Random random = new Random();
-        int choice = random.nextInt()%8;
-        int i = getPosition().getY()/72;
-        int j = getPosition().getX()/72;
+        int i = getPosition().getI();
+        int j = getPosition().getJ();
         Position next = new Position(getPosition().getX(),getPosition().getY());
+        synchronized (battlefield) {
+            if(i>0&&!battlefield[i-1][j].isEmpty()) {
+                if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setI(i-1);
+                    return next;
+                }
+            }
+            else if(i<9&&!battlefield[i+1][j].isEmpty()) {
+                if(battlefield[i+1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setI(i+1);
+                    return next;
+                }
+            }
+            else if(j>0&&!battlefield[i][j-1].isEmpty()) {
+                if(battlefield[i][j-1].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setJ(j-1);
+                    return next;
+                }
+            }
+            else if(j<17&&!battlefield[i][j+1].isEmpty()) {
+                if(battlefield[i][j+1].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setJ(j+1);
+                    return next;
+                }
+            }
+        }
+        if(trace.size() > 15) {
+            return moveToCentralField();
+        }
+        //周围没有敌人，随机行走
+        int choice = random.nextInt()%8;
         if(choice ==0 && j > 0) {
-            next.setX(next.getX()-72);
+            next.setJ(j-1);
         }
         if(choice == 1 && i > 0) {
-            next.setY(next.getY()-72);
+            next.setI(i-1);
         }
         if(choice > 2&&j<17) {
-            next.setX(next.getX()+72);
+            next.setJ(j+1);
         }
         if(choice ==2&&i<9) {
-            next.setY(next.getY()+72);
+            next.setI(i+1);
         }
         return next;
     }
@@ -78,36 +114,53 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
     @TODO(todo = "随机行走,目前只采取避让策略，之后考虑碰撞事件")
     public void run() {
         boolean timeToShoot = true;
-        //现阶段采取避让策略
         while(health>0) {
             Position next = nextMove();
-            int i = next.getY()/72;
-            int j = next.getX()/72;
+            int i = next.getI();
+            int j = next.getJ();
             synchronized (battlefield) {
                 if(battlefield[i][j].isEmpty()) {
-                    battlefield[getPosition().getY()/72][getPosition().getX()/72].creatureLeave();
-                    battlefield[i][j].creatureEnter(this);
-                    setPosition(next.getX(),next.getY());
+                    trace.add(next);
+                    move(next);
                 }
                 else {
+                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
-                    if(creature.getProperty()!=this.getProperty()) {
+                    if(creature.getProperty()==CreatureAttribute.BAD) {
                         meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        DeadCreature dead = new DeadCreature();
                         if(isDead()) {
-                            battlefield[getPosition().getY()/72][getPosition().getX()/72].creatureLeave();
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
+                            dead.setPosition(getPosition().getX(),getPosition().getY());
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
                         }
                         else {
                             battlefield[i][j].creatureLeave();
+                            dead.setPosition(next.getX(),next.getY());
+                            battlefield[i][j].creatureEnter(dead);
                         }
                     }
                 }
             }
             try{
                 if(timeToShoot) {
-                    shoot();
+                    Bullet bullet = shoot();
+                    bulletExecutor.execute(bullet);
+                    synchronized (bullets) {
+                        bullets.add(bullet);
+                    }
+                }
+                timeToShoot = !timeToShoot;
+                synchronized (this) {
+                    if(cureCount>0&&health>0) {
+                        health+=20;
+                        if(health > maxHelth) {
+                            health = maxHelth;
+                        }
+                    }
+                    cureCount--;
                 }
                 TimeUnit.MILLISECONDS.sleep(1000);
-                timeToShoot = !timeToShoot;
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
@@ -115,7 +168,7 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
         }
     }
 
-    public void shoot() {
+    public Bullet shoot() {
         Position bulletPos = new Position(getPosition().getX()+72,getPosition().getY());
         BulletAttribute bulletAttribute = BulletAttribute.HERO;
         if(color == Color.GREEN) {
@@ -125,9 +178,6 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
             bulletAttribute = BulletAttribute.WATER;
         }
         Bullet bullet = new Bullet(this.toString(),bulletAttribute,bulletPos,battlefield);
-        bulletExecutor.execute(bullet);
-        synchronized (bullets) {
-            bullets.add(bullet);
-        }
+        return bullet;
     }
 }

@@ -1,4 +1,4 @@
-package njuczh.GUI;
+package njuczh.Game;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -24,8 +24,7 @@ import njuczh.Battle.Evildoers;
 import njuczh.Battle.Heroes;
 import njuczh.Formations.*;
 import njuczh.MyAnnotation.Author;
-import njuczh.MyAnnotation.TODO;
-import njuczh.Things.Bullet;
+import njuczh.Things.Creature;
 
 /*负责处理GUI的逻辑 */
 @Author(name = "崔子寒")
@@ -39,8 +38,8 @@ public class GameController implements Initializable{
     @FXML  AnchorPane aPane;
     private Image background = new Image("background.png");
     private Battlefield battlefield = new Battlefield();
-    private Heroes heroes = new Heroes(battlefield.getBattlefield());
-    private Evildoers evildoers = new Evildoers(battlefield.getBattlefield());
+    private Heroes heroes = new Heroes();
+    private Evildoers evildoers = new Evildoers();
     private ArrayList<FormationProvider> providers = new ArrayList<FormationProvider>();
     private int currentFormationHero = 3;
     private int currentFormationEvil = 3;
@@ -86,6 +85,7 @@ public class GameController implements Initializable{
             System.exit(0);
         }
     }
+
     //用户按下按钮或者通过键盘SPACE触发之后，自动将焦点设置到游戏区域
     @FXML private void startGameHandler() {
         if(!isGamming) {
@@ -103,6 +103,7 @@ public class GameController implements Initializable{
             gameLauncher = Executors.newSingleThreadExecutor();
             gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
             gameLauncher.execute(gameRound);
+            gameLauncher.shutdown();
         }
     }
     @FXML private void quitGameHandler() {
@@ -120,10 +121,11 @@ public class GameController implements Initializable{
             }
             finally {
                 battlefield = new Battlefield();
-                heroes = new Heroes(battlefield.getBattlefield());
-                evildoers = new Evildoers(battlefield.getBattlefield());
+                heroes = new Heroes();
+                evildoers = new Evildoers();
                 currentFormationHero = 3;
                 currentFormationEvil = 3;
+                Creature.setBattlefield(battlefield.getBattlefield());
                 heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
                 evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
                 battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
@@ -190,6 +192,7 @@ public class GameController implements Initializable{
         gameArea.setOnKeyPressed(new KeyBoredHandler());
         providers.addAll(Arrays.asList(new HeYi(),new YanXing(),new ChongE(),
                 new ChangShe(),new YuLin(),new Fang(),new YanYue(),new FengShi()));
+        Creature.setBattlefield(battlefield.getBattlefield());
         heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
         evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
         battlefield.displayBattlefield(gameArea.getGraphicsContext2D());

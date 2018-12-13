@@ -1,9 +1,11 @@
 package njuczh.Battle;
 
+import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Things.Bullet;
 import njuczh.Things.Creature;
+import njuczh.Things.DeadCreature;
 
 @TODO(todo="子弹击中某个生物的事件")
 public class BulletHit {
@@ -24,7 +26,13 @@ public class BulletHit {
         else {
             stringBuilder.append(shooterName);
             if(harm >= creature.getHealth()) {
-                creature.setHealth(0);
+                creature.die();
+                if(creature.getProperty()== CreatureAttribute.GOOD) {
+                    Heroes.heroDie();
+                }
+                else {
+                    Evildoers.evildoerDie();
+                }
                 stringBuilder.append("的远程攻击击杀了"+creature+"!\n");
                 result = stringBuilder.toString();
             }

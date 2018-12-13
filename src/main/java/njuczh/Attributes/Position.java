@@ -31,4 +31,24 @@ public class Position {
     public int getY() {
         return y;
     }
+
+    public int getI() {
+        return y/72;
+    }
+
+    public int getJ() {
+        return x/72;
+    }
+
+    public void setI(int i) {
+        y = i*72;
+    }
+
+    public void setJ(int j) {
+        x = j*72;
+    }
+
+    public String toString() {
+        return ""+x+" "+y;
+    }
 }

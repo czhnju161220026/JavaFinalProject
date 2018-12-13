@@ -1,6 +1,7 @@
 package njuczh.Things;
+import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
-import njuczh.Battle.Block;
+import njuczh.Battle.CreaturesMeet;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;
 import javafx.scene.image.Image;
@@ -9,15 +10,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Grandfather extends Creature implements Cure,Runnable{
-    private final Block[][] battlefield;
-    public Grandfather(Block[][] battlefield) {
-        this.battlefield = battlefield;
+    public Grandfather() {
         image = new Image("grandfather.png");
-        attackPower = 0;
-        denfensePower = 0;
-        health = 200;
-        maxHelth = 200;
-        good = true;
+        attackPower = 20;
+        denfensePower = 20;
+        health = 500;
+        maxHelth = 500;
+        property = CreatureAttribute.GOOD;
         moveFinished = false;
     }
 
@@ -29,42 +28,53 @@ public class Grandfather extends Creature implements Cure,Runnable{
     public String toString() {
         return "爷爷";
     }
-    public void cheer(){}
+    @TODO(todo = "治疗周围的葫芦娃")
+    public void cheer(){
+        int i = getPosition().getI();
+        int j = getPosition().getJ();
+        synchronized (battlefield) {
+            for(int m = i-2;m<=i+2;m++) {
+                for(int n = j-2;n<=j+2;n++) {
+                    if(m>0&&m<10&&n>0&&n<18) {
+                        Creature creature = battlefield[m][n].getCreature();
+                        if(creature instanceof CalabashBrother) {
+                            synchronized (creature) {
+                                ((CalabashBrother) creature).setCure();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
-        Random random = new Random();
-        //现阶段采取避让策略
         while(health !=0) {
-            int choice = random.nextInt()%4;
-            int i = getPosition().getY()/72;
-            int j = getPosition().getX()/72;
+            cheer();
+            Position next = moveToCentralField();
+            int i = next.getI();
+            int j = next.getJ();
             synchronized (battlefield) {
-                if(choice == 0 && j>0) {
-                    if(battlefield[i][j-1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j-1].creatureEnter(this);
-                        setPosition((j-1)*72,i*72);
-                    }
+                if(battlefield[i][j].isEmpty()) {
+                    trace.add(next);
+                    move(next);
                 }
-                else if(choice == 1 && i>0) {
-                    if(battlefield[i-1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i-1][j].creatureEnter(this);
-                        setPosition(j*72,(i-1)*72);
-                    }
-                }
-                else if(choice == 2 && j<17) {
-                    if(battlefield[i][j+1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j+1].creatureEnter(this);
-                        setPosition((j+1)*72,i*72);
-                    }
-                }
-                else if(choice == 3 && i<9) {
-                    if( battlefield[i+1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i+1][j].creatureEnter(this);
-                        setPosition(j*72,(i+1)*72);
+                else {
+                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                    Creature creature = battlefield[i][j].getCreature();
+                    if(creature.getProperty()==CreatureAttribute.BAD) {
+                        meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        DeadCreature dead = new DeadCreature();
+                        if(isDead()) {
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
+                            dead.setPosition(getPosition().getX(),getPosition().getY());
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
+                        }
+                        else {
+                            battlefield[i][j].creatureLeave();
+                            dead.setPosition(next.getX(),next.getY());
+                            battlefield[i][j].creatureEnter(dead);
+                        }
                     }
                 }
             }

@@ -1,9 +1,11 @@
-package njuczh.GUI;
+package njuczh.Game;
 
+import javafx.geometry.Pos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import njuczh.Attributes.Position;
 import njuczh.Battle.*;
 import njuczh.MyAnnotation.*;
 import njuczh.Things.*;
@@ -90,10 +92,19 @@ public class GameRound implements Runnable{
         long endTime = 0;
         int FPS = 0;
         while(isGamming) {
+            if(Heroes.allDead()) {
+                textArea.appendText("妖怪赢得胜利。");
+                isGamming = false;
+            }
+            if(Evildoers.allDead()) {
+                textArea.appendText("葫芦娃赢得胜利。");
+                isGamming = false;
+            }
             try {
                 startTime = System.currentTimeMillis();
                 gc.drawImage(background,0,0,1296,721);
                 battlefield.displayBattlefield(gc);
+
                 synchronized (heroBullets) {
                     for(Bullet bullet: heroBullets) {
                         if(!bullet.isDone()) {
@@ -123,7 +134,7 @@ public class GameRound implements Runnable{
                 }
                 gc.setStroke(Color.WHITE);
                 gc.strokeText("FPS: "+FPS,5,30); //绘制帧数
-                TimeUnit.MILLISECONDS.sleep(30);
+                TimeUnit.MILLISECONDS.sleep(20);
                 endTime = System.currentTimeMillis();
                 FPS = (int)(1000/(endTime-startTime));  //计算瞬时帧数
             }
@@ -149,18 +160,45 @@ public class GameRound implements Runnable{
                         }
                     });
                 }
-
             }
         }
+        endGame();
     }
+
+    @TODO(todo = "输出每个生物的行进轨迹到日志")
     private void outputLog() {
-        textArea.appendText("该回合结束。\n");
-        String log = textArea.getText();
         try{
             Date current = new Date();
             BufferedWriter fout = new BufferedWriter(new FileWriter(new File("Log_"+current.getTime()+".txt")));
-            fout.write(current.toString()+'\n');
-            fout.write(log);
+            for(CalabashBrother cb:calabashBrothers) {
+                fout.write(""+cb.getTrace().size()+'\n');
+                for(Position pos:cb.getTrace()) {
+                    fout.write(pos+"  ");
+                }
+                fout.write('\n');
+            }
+            fout.write(""+grandfather.getTrace().size()+'\n');
+            for(Position pos:grandfather.getTrace()) {
+                fout.write(pos+"  ");
+            }
+            fout.write('\n');
+            for(Monster monster:monsters) {
+                fout.write(""+monster.getTrace().size()+'\n');
+                for(Position pos:monster.getTrace()) {
+                    fout.write(pos+"  ");
+                }
+                fout.write('\n');
+            }
+            fout.write(""+scorpion.getTrace().size()+'\n');
+            for(Position pos:scorpion.getTrace()) {
+                fout.write(pos+"  ");
+            }
+            fout.write('\n');
+            fout.write(""+snake.getTrace().size()+'\n');
+            for(Position pos:snake.getTrace()) {
+                fout.write(pos+"  ");
+            }
+            fout.write('\n');
             fout.flush();
             fout.close();
         }
@@ -182,10 +220,10 @@ public class GameRound implements Runnable{
         //heroBulletExecutor.shutdown();
         //杀死所有生物，以结束它们的线程
         for(CalabashBrother cb: calabashBrothers) {
-            cb.kill();
+            cb.die();
         }
         for(Monster monster:monsters) {
-            monster.kill();
+            monster.die();
         }
         for(Bullet bullet:evilBullets) {
             bullet.setDone();
@@ -193,9 +231,9 @@ public class GameRound implements Runnable{
         for(Bullet bullet:heroBullets) {
             bullet.setDone();
         }
-        grandfather.kill();
-        snake.kill();
-        scorpion.kill();
+        grandfather.die();
+        snake.die();
+        scorpion.die();
         creatureExcutor.shutdown();
         heroBulletExecutor.shutdown();
         evilBulletExecutor.shutdown();

@@ -2,12 +2,11 @@ package njuczh.Things;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.control.TextArea;
 import njuczh.Attributes.BulletAttribute;
+import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
 import njuczh.Battle.Block;
 import njuczh.Battle.BulletHit;
-import njuczh.GUI.GameRound;
 import njuczh.MyAnnotation.TODO;
 import sun.misc.Queue;
 
@@ -18,7 +17,7 @@ public class Bullet extends Thing implements Runnable{
     private Image image;
     private int attackPower;
     private String shooterName;
-    private boolean good;
+    private CreatureAttribute target;
     private Position pos;
     private int direction;
     private boolean isDone = false;
@@ -31,15 +30,18 @@ public class Bullet extends Thing implements Runnable{
         this.pos = pos;
         this.attribute = attribute;
         this.battlefield = battlefield;
-        attackPower = 20;
+        attackPower = 60;
         image = new Image(attribute.getImagePath());
         if(attribute==BulletAttribute.EVIL) {
-            good = false;
+            target = CreatureAttribute.GOOD;
             direction = -1;
         }
         else {
-            good = true;
+            target = CreatureAttribute.BAD;
             direction = 1;
+            if(attribute == BulletAttribute.FIRE||attribute == BulletAttribute.WATER) {
+                attackPower = 100;
+            }
         }
     }
     @TODO(todo = "在图像上绘制自己")
@@ -66,8 +68,8 @@ public class Bullet extends Thing implements Runnable{
         return shooterName;
     }
 
-    public boolean isGood() {
-        return good;
+    public CreatureAttribute getTarget() {
+        return target;
     }
 
     public BulletAttribute getAttribute() {
@@ -79,12 +81,12 @@ public class Bullet extends Thing implements Runnable{
     }
     @TODO(todo = "沿着指示的方向移动，检测撞击事件")
     public void run() {
-        int i = pos.getY()/72;
-        int j = pos.getX()/72;
+        int i = pos.getI();
+        int j = pos.getJ();
         while(!isDone && pos.getX() > 0 && pos.getX() < 1296) {
             pos.setX(pos.getX()+ direction *18);
             if(pos.getX()%72 == 0) {
-                j = pos.getX()/72;
+                j = pos.getJ();
                 if(j==18) {
                     break;
                 }
@@ -92,13 +94,16 @@ public class Bullet extends Thing implements Runnable{
             synchronized (battlefield) {
                 if(!battlefield[i][j].isEmpty()) {
                     Creature creature = battlefield[i][j].getCreature();
-                    if(good!=creature.getProperty()) {
+                    if(target == creature.getProperty()) {
                         BulletHit bulletHit = new BulletHit(this,creature);
                         synchronized (hitQueue) {
                             hitQueue.enqueue(bulletHit);
                         }
                         if(creature.isDead()) {
                             battlefield[i][j].creatureLeave();
+                            DeadCreature dead = new DeadCreature();
+                            dead.setPosition(creature.getPosition().getX(),creature.getPosition().getY());
+                            battlefield[i][j].creatureEnter(dead);
                         }
                     }
                 }

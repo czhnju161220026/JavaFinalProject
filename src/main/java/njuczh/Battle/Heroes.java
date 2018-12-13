@@ -15,20 +15,30 @@ public class Heroes {
 
     private ArrayList<CalabashBrother>calabashBrothers;
     private Grandfather grandfather;
-
-    public Heroes(Block[][] battlefield) {
+    private static int aliveCount = 8;
+    public Heroes() {
+        aliveCount = 8;
         calabashBrothers = new ArrayList<CalabashBrother>();
         calabashBrothers.addAll(Arrays.asList(
-                new CalabashBrother(Color.RED,battlefield),
-                new CalabashBrother(Color.ORANGE,battlefield),
-                new CalabashBrother(Color.YELLOW,battlefield),
-                new CalabashBrother(Color.GREEN,battlefield),
-                new CalabashBrother(Color.BLUE,battlefield),
-                new CalabashBrother(Color.CYAN,battlefield),
-                new CalabashBrother(Color.PURPLE,battlefield)));
-        grandfather = new Grandfather(battlefield);
+                new CalabashBrother(Color.RED),
+                new CalabashBrother(Color.ORANGE),
+                new CalabashBrother(Color.YELLOW),
+                new CalabashBrother(Color.GREEN),
+                new CalabashBrother(Color.BLUE),
+                new CalabashBrother(Color.CYAN),
+                new CalabashBrother(Color.PURPLE)));
+        grandfather = new Grandfather();
     }
-
+    public static boolean allDead() {
+        synchronized (Heroes.class) {
+            return aliveCount==0;
+        }
+    }
+    public static void heroDie() {
+        synchronized (Heroes.class) {
+            aliveCount--;
+        }
+    }
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {
         String formationName = fp.getName();
         Position[] positions = fp.provideFormation();
