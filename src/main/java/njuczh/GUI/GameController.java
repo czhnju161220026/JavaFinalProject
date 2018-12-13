@@ -88,44 +88,46 @@ public class GameController implements Initializable{
     }
     //用户按下按钮或者通过键盘SPACE触发之后，自动将焦点设置到游戏区域
     @FXML private void startGameHandler() {
-        Stage stage = (Stage)aPane.getScene().getWindow();
-        stage.setOnCloseRequest(new ClickCloseHandler());
-        gameLog.appendText("游戏开始!\n");
-        isGamming = true;
-        Platform.runLater(new Runnable() {
-            public void run() {
-                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
-            }
-        });
-        //游戏正式开始，开始随机移动和战斗
-        gameLauncher = Executors.newSingleThreadExecutor();
-        gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
-        gameLauncher.execute(gameRound);
+        if(!isGamming) {
+            Stage stage = (Stage)aPane.getScene().getWindow();
+            stage.setOnCloseRequest(new ClickCloseHandler());
+            gameLog.clear();
+            gameLog.appendText("游戏开始!\n");
+            isGamming = true;
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                }
+            });
+            //游戏正式开始，开始随机移动和战斗
+            gameLauncher = Executors.newSingleThreadExecutor();
+            gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
+            gameLauncher.execute(gameRound);
+        }
     }
     @FXML private void quitGameHandler() {
-        GraphicsContext gc = gameArea.getGraphicsContext2D();
-        gc.drawImage(background,0,0,1296,721);
-        isGamming = false;
-        try{
-            gameRound.endGame();
-            gameLauncher.shutdown();
-            while(!gameLauncher.isTerminated()){}
-            gameLog.appendText("该回合结束\n");
-        }
-        catch (NullPointerException e) {
-            e.printStackTrace();
-        }
-        finally {
-            battlefield = new Battlefield();
-            heroes = new Heroes(battlefield.getBattlefield());
-            evildoers = new Evildoers(battlefield.getBattlefield());
-            currentFormationHero = 3;
-            currentFormationEvil = 3;
-            heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
-            evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
-            battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
-            gameLog.appendText("游戏结束,准备开始新一轮游戏。\n");
-            gameLog.appendText("游戏准备开始.葫芦娃和妖怪摆好了长蛇阵！\n");
+        if(isGamming) {
+            GraphicsContext gc = gameArea.getGraphicsContext2D();
+            gc.drawImage(background,0,0,1296,721);
+            isGamming = false;
+            try{
+                gameRound.endGame();
+                gameLauncher.shutdown();
+                while(!gameLauncher.isTerminated()){}
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            finally {
+                battlefield = new Battlefield();
+                heroes = new Heroes(battlefield.getBattlefield());
+                evildoers = new Evildoers(battlefield.getBattlefield());
+                currentFormationHero = 3;
+                currentFormationEvil = 3;
+                heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
+                evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
+                battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
+            }
         }
         Platform.runLater(new Runnable() {
             public void run() {

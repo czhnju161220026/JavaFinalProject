@@ -9,6 +9,8 @@ import njuczh.Battle.Block;
 import njuczh.Battle.BulletHit;
 import njuczh.GUI.GameRound;
 import njuczh.MyAnnotation.TODO;
+import sun.misc.Queue;
+
 import java.util.concurrent.TimeUnit;
 
 
@@ -21,7 +23,7 @@ public class Bullet extends Thing implements Runnable{
     private int direction;
     private boolean isDone = false;
     private final Block[][] battlefield;
-    private static Image explodeImage = new Image("explode.png");
+    private static Queue<BulletHit> hitQueue;
 
     private BulletAttribute attribute;
     public Bullet(String shooterName, BulletAttribute attribute, Position pos,Block[][] battlefield) {
@@ -71,6 +73,10 @@ public class Bullet extends Thing implements Runnable{
     public BulletAttribute getAttribute() {
         return attribute;
     }
+
+    public static void setHitQueue(Queue<BulletHit> Queue) {
+        hitQueue= Queue;
+    }
     @TODO(todo = "沿着指示的方向移动，检测撞击事件")
     public void run() {
         int i = pos.getY()/72;
@@ -88,7 +94,9 @@ public class Bullet extends Thing implements Runnable{
                     Creature creature = battlefield[i][j].getCreature();
                     if(good!=creature.getProperty()) {
                         BulletHit bulletHit = new BulletHit(this,creature);
-                        String result = bulletHit.getResult();
+                        synchronized (hitQueue) {
+                            hitQueue.enqueue(bulletHit);
+                        }
                         if(creature.isDead()) {
                             battlefield[i][j].creatureLeave();
                         }
@@ -104,5 +112,9 @@ public class Bullet extends Thing implements Runnable{
         }
         isDone = true;
         //System.out.println("Bullet done");
+    }
+
+    public Position getPos() {
+        return pos;
     }
 }

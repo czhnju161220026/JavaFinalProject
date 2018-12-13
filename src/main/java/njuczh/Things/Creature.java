@@ -1,6 +1,8 @@
 package njuczh.Things;
 import njuczh.Attributes.*;
 import javafx.scene.image.Image;
+import njuczh.Battle.CreaturesMeet;
+import sun.misc.Queue;
 
 public abstract class Creature extends Thing{
     private Position position= new Position();
@@ -11,6 +13,7 @@ public abstract class Creature extends Thing{
     protected  int maxHelth;
     protected boolean good;
     protected boolean moveFinished;
+    protected static Queue<CreaturesMeet> meetQueue;
     public int getAttackPower() {
         return attackPower;
     }
@@ -35,7 +38,9 @@ public abstract class Creature extends Thing{
     public boolean isDead() {
         return health <=0;
     }
-    public void kill() {health = 0;}
+    public void kill() {
+        health = 0;
+    }
     public void setPosition(int x,int y) {
         position.setX(x);
         position.setY(y);
@@ -43,8 +48,15 @@ public abstract class Creature extends Thing{
     public Position getPosition() {
         return  position;
     }
-    public abstract Image getImage();
     public boolean getProperty() {
         return good;
     }
+
+    public static void setMeetQueue(Queue<CreaturesMeet> queue) {
+        meetQueue = queue;
+    }
+
+    //抽象方法
+    public abstract Image getImage();
+    Position nextMove() {return null;}
 }

@@ -1,4 +1,5 @@
 package njuczh.Things;
+import njuczh.Attributes.Position;
 import njuczh.Battle.Block;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;

@@ -6,8 +6,8 @@ import njuczh.MyAnnotation.Author;
 @Author(name = "崔子寒")
 public class ChongE implements  FormationProvider {
     public Position[] provideFormation() {
-        Position[] positions = {new Position(5*70,70),new Position(4*70,2*70),new Position(5*70,3*70), new Position(4*70,4*70),
-                new Position(5*70,5*70),new Position(4*70,6*70),new Position(5*70,7*70),new Position(4*70,8*70)};
+        Position[] positions = {new Position(5*72,72),new Position(4*72,2*72),new Position(5*72,3*72), new Position(4*72,4*72),
+                new Position(5*72,5*72),new Position(4*72,6*72),new Position(5*72,7*72),new Position(4*72,8*72)};
         return positions;
     }
     public String getName() {

@@ -2,6 +2,7 @@ package njuczh.Things;
 import njuczh.Attributes.BulletAttribute;
 import njuczh.Attributes.Position;
 import njuczh.Battle.Block;
+import njuczh.Battle.CreaturesMeet;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;
 import njuczh.Attributes.Color;
@@ -52,42 +53,52 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
         bullets = array;
     }
 
+    @Override
+    Position nextMove() {
+        Random random = new Random();
+        int choice = random.nextInt()%8;
+        int i = getPosition().getY()/72;
+        int j = getPosition().getX()/72;
+        Position next = new Position(getPosition().getX(),getPosition().getY());
+        if(choice ==0 && j > 0) {
+            next.setX(next.getX()-72);
+        }
+        if(choice == 1 && i > 0) {
+            next.setY(next.getY()-72);
+        }
+        if(choice > 2&&j<17) {
+            next.setX(next.getX()+72);
+        }
+        if(choice ==2&&i<9) {
+            next.setY(next.getY()+72);
+        }
+        return next;
+    }
+
     @TODO(todo = "随机行走,目前只采取避让策略，之后考虑碰撞事件")
     public void run() {
-        Random random = new Random();
         boolean timeToShoot = true;
         //现阶段采取避让策略
         while(health>0) {
-            int choice = random.nextInt()%6;
-            int i = getPosition().getY()/72;
-            int j = getPosition().getX()/72;
+            Position next = nextMove();
+            int i = next.getY()/72;
+            int j = next.getX()/72;
             synchronized (battlefield) {
-                if(choice == 0 && j>0) {
-                    if(battlefield[i][j-1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j-1].creatureEnter(this);
-                        setPosition((j-1)*72,i*72);
-                    }
+                if(battlefield[i][j].isEmpty()) {
+                    battlefield[getPosition().getY()/72][getPosition().getX()/72].creatureLeave();
+                    battlefield[i][j].creatureEnter(this);
+                    setPosition(next.getX(),next.getY());
                 }
-                else if(choice == 1 && i>0) {
-                    if(battlefield[i-1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i-1][j].creatureEnter(this);
-                        setPosition(j*72,(i-1)*72);
-                    }
-                }
-                else if((choice ==2 || choice==4||choice==5) && j<17) {
-                    if(battlefield[i][j+1].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i][j+1].creatureEnter(this);
-                        setPosition((j+1)*72,i*72);
-                    }
-                }
-                else if(choice == 3 && i<9) {
-                    if( battlefield[i+1][j].isEmpty()) {
-                        battlefield[i][j].creatureLeave();
-                        battlefield[i+1][j].creatureEnter(this);
-                        setPosition(j*72,(i+1)*72);
+                else {
+                    Creature creature = battlefield[i][j].getCreature();
+                    if(creature.getProperty()!=this.getProperty()) {
+                        meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        if(isDead()) {
+                            battlefield[getPosition().getY()/72][getPosition().getX()/72].creatureLeave();
+                        }
+                        else {
+                            battlefield[i][j].creatureLeave();
+                        }
                     }
                 }
             }

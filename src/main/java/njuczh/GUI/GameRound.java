@@ -4,13 +4,17 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import njuczh.Battle.Battlefield;
-import njuczh.Battle.Evildoers;
-import njuczh.Battle.Heroes;
+import njuczh.Battle.*;
 import njuczh.MyAnnotation.*;
 import njuczh.Things.*;
+import sun.misc.Queue;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,13 +31,17 @@ public class GameRound implements Runnable{
     private Battlefield battlefield;
     private ArrayList<Bullet> heroBullets;
     private ArrayList<Bullet> evilBullets;
+    private Queue<BulletHit> hitQueue;
+    private Queue<CreaturesMeet> meetQueue;
     private GraphicsContext gc;
     private TextArea textArea = null;
     private Image background= new Image("background.png");
+    private Image explode = new Image("explode.png");
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
     private ExecutorService evilBulletExecutor;
     private ExecutorService creatureExcutor;
+
 
     public GameRound(Heroes heroes,Evildoers evildoers,Battlefield battlefield,GraphicsContext gc,TextArea textArea) {
         this.calabashBrothers = heroes.getCalabashBrothers();
@@ -46,6 +54,8 @@ public class GameRound implements Runnable{
         this.textArea = textArea;
         heroBullets = new ArrayList<Bullet>();
         evilBullets = new ArrayList<Bullet>();
+        hitQueue = new Queue<>();
+        meetQueue = new Queue<>();
         heroBulletExecutor = Executors.newCachedThreadPool();
         evilBulletExecutor = Executors.newCachedThreadPool();
         creatureExcutor = Executors.newCachedThreadPool();
@@ -53,7 +63,25 @@ public class GameRound implements Runnable{
         CalabashBrother.setBulletExecutor(heroBulletExecutor);
         Monster.setBullets(evilBullets);
         Monster.setBulletExecutor(evilBulletExecutor);
+        Bullet.setHitQueue(hitQueue);
+        Creature.setMeetQueue(meetQueue);
+    }
 
+    public Queue<BulletHit> getHitQueue() {
+        return hitQueue;
+    }
+
+    private void initThreads() {
+        for(CalabashBrother cb:calabashBrothers) {
+            creatureExcutor.execute(cb);
+        }
+        creatureExcutor.execute(grandfather);
+        for(Monster monster:monsters) {
+            creatureExcutor.execute(monster);
+        }
+        creatureExcutor.execute(scorpion);
+        creatureExcutor.execute(snake);
+        creatureExcutor.shutdown();
     }
 
     private void displayAll() {
@@ -80,9 +108,22 @@ public class GameRound implements Runnable{
                         }
                     }
                 }
+                synchronized (hitQueue) {
+                    while(!hitQueue.isEmpty()) {
+                        BulletHit hit = hitQueue.dequeue();
+                        gc.drawImage(explode,hit.getPos().getX(),hit.getPos().getY()+15,40,40);
+                        textArea.appendText(hit.getResult());
+                    }
+                }
+                synchronized (meetQueue) {
+                    while(!meetQueue.isEmpty()) {
+                        CreaturesMeet meet = meetQueue.dequeue();
+                        textArea.appendText(meet.getResult());
+                    }
+                }
                 gc.setStroke(Color.WHITE);
                 gc.strokeText("FPS: "+FPS,5,30); //绘制帧数
-                TimeUnit.MILLISECONDS.sleep(25);
+                TimeUnit.MILLISECONDS.sleep(30);
                 endTime = System.currentTimeMillis();
                 FPS = (int)(1000/(endTime-startTime));  //计算瞬时帧数
             }
@@ -112,22 +153,27 @@ public class GameRound implements Runnable{
             }
         }
     }
-
+    private void outputLog() {
+        textArea.appendText("该回合结束。\n");
+        String log = textArea.getText();
+        try{
+            Date current = new Date();
+            BufferedWriter fout = new BufferedWriter(new FileWriter(new File("Log_"+current.getTime()+".txt")));
+            fout.write(current.toString()+'\n');
+            fout.write(log);
+            fout.flush();
+            fout.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @TODO(todo="进行线程的分配，游戏进行，游戏战斗的记录")
     public void run(){
         System.out.println("开始新回合");
-        for(CalabashBrother cb:calabashBrothers) {
-            creatureExcutor.execute(cb);
-        }
-        creatureExcutor.execute(grandfather);
-        for(Monster monster:monsters) {
-            creatureExcutor.execute(monster);
-        }
-        creatureExcutor.execute(scorpion);
-        creatureExcutor.execute(snake);
-        creatureExcutor.shutdown();
+        initThreads();
         displayAll();
-        System.out.println("Round done");
+        outputLog();
     }
 
     @TODO(todo="完成一些游戏结束后的清理")
@@ -153,9 +199,10 @@ public class GameRound implements Runnable{
         creatureExcutor.shutdown();
         heroBulletExecutor.shutdown();
         evilBulletExecutor.shutdown();
+        //等待所有线程正常退出
         while(!creatureExcutor.isTerminated()) {}
         while(!evilBulletExecutor.isTerminated()) {}
         while(!heroBulletExecutor.isTerminated()) {}
-
     }
 }
+
