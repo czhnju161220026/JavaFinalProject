@@ -17,6 +17,10 @@ public class CreaturesMeet {
         int defensePower2 = creature2.getDenfensePower();
         int helth1 = creature1.getHealth();
         int helth2 = creature2.getHealth();
+        if(helth1==0||helth2==0) {
+            result="";
+            return;
+        }
         int harm2 = attackPower1 - defensePower1;
         int harm1 = attackPower2 - defensePower2;
         boolean flag = false;

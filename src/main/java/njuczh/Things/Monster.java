@@ -21,10 +21,10 @@ public class Monster extends Creature implements Runnable, Shoot {
         image = new Image("monster.png");
         property = CreatureAttribute.BAD;
         moveFinished = false;
-        health = 200;
-        maxHelth = 200;
-        attackPower = 30;
-        denfensePower =20;
+        health = 270;
+        maxHelth = 270;
+        attackPower = 40;
+        denfensePower =40;
     }
 
     public boolean isCured() {
@@ -57,6 +57,7 @@ public class Monster extends Creature implements Runnable, Shoot {
         int j = getPosition().getJ();
         Position next = new Position(getPosition().getX(),getPosition().getY());
         synchronized (battlefield) {
+
             if(i>0&&!battlefield[i-1][j].isEmpty()) {
                 if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.GOOD) {
                     next.setI(i-1);
@@ -110,6 +111,9 @@ public class Monster extends Creature implements Runnable, Shoot {
             int i = next.getI();
             int j = next.getJ();
             synchronized (battlefield) {
+                if(health<=0) {
+                    break;
+                }
                 if(battlefield[i][j].isEmpty()) {
                     trace.add(next);
                     move(next);
@@ -118,7 +122,9 @@ public class Monster extends Creature implements Runnable, Shoot {
                     trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.GOOD) {
-                        meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        synchronized (meetQueue) {
+                            meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        }
                         DeadCreature dead = new DeadCreature();
                         if(isDead()) {
                             battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();

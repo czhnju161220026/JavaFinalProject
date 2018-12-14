@@ -19,13 +19,15 @@ public class BulletHit {
         bullet.setDone();
         int harm = attackPower-creature.getDenfensePower();
         if(harm<=0) {
-            stringBuilder.append(shooterName);
-            stringBuilder.append("的远程攻击未能击穿"+creature+"的防御!\n");
-            result = stringBuilder.toString();
+            //stringBuilder.append(shooterName);
+            //stringBuilder.append("的未能击穿"+creature+"的防御!\n");
+            //result = stringBuilder.toString();
+            result="";
         }
         else {
             stringBuilder.append(shooterName);
-            if(harm >= creature.getHealth()) {
+            int health = creature.getHealth();
+            if(harm >= health) {
                 creature.die();
                 if(creature.getProperty()== CreatureAttribute.GOOD) {
                     Heroes.heroDie();
@@ -33,13 +35,14 @@ public class BulletHit {
                 else {
                     Evildoers.evildoerDie();
                 }
-                stringBuilder.append("的远程攻击击杀了"+creature+"!\n");
+                stringBuilder.append("击杀了"+creature+"!\n");
                 result = stringBuilder.toString();
             }
             else {
-                creature.setHealth(creature.getHealth()-harm);
-                stringBuilder.append("对"+creature+"造成了:"+harm+"点伤害!\n");
-                result = stringBuilder.toString();
+                creature.setHealth(health-harm);
+                //stringBuilder.append("对"+creature+"造成了:"+harm+"点伤害!\n");
+                //result = stringBuilder.toString();
+                result="";
             }
         }
     }

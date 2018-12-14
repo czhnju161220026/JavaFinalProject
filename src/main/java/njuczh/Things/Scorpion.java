@@ -14,10 +14,10 @@ public class Scorpion extends Monster implements Runnable {
         image = new Image("scorpion.png");
         property = CreatureAttribute.BAD;
         moveFinished = false;
-        health = 500;
-        maxHelth = 500;
-        attackPower = 60;
-        denfensePower = 40;
+        health = 600;
+        maxHelth = 600;
+        attackPower = 70;
+        denfensePower = 50;
     }
     public String toString() {
         return "蝎子";
@@ -32,31 +32,37 @@ public class Scorpion extends Monster implements Runnable {
         Random random = new Random();
         //现阶段采取避让策略
         while(health !=0) {
+            Position next = nextMove();
+            int i = next.getI();
+            int j = next.getJ();
             synchronized (battlefield) {
-                Position next = nextMove();
-                int i = next.getI();
-                int j = next.getJ();
-                synchronized (battlefield) {
-                    if(battlefield[i][j].isEmpty()) {
-                        move(next);
-                        trace.add(next);
-                    }
-                    else {
-                        trace.add(new Position(getPosition().getX(),getPosition().getY()));
-                        Creature creature = battlefield[i][j].getCreature();
-                        if(creature.getProperty()==CreatureAttribute.GOOD) {
+                if(health<=0) {
+                    break;
+                }
+                if(health<=0) {
+                    break;
+                }
+                if(battlefield[i][j].isEmpty()) {
+                    move(next);
+                    trace.add(next);
+                }
+                else {
+                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                    Creature creature = battlefield[i][j].getCreature();
+                    if(creature.getProperty()==CreatureAttribute.GOOD) {
+                        synchronized (meetQueue) {
                             meetQueue.enqueue(new CreaturesMeet(this,creature));
-                            DeadCreature dead = new DeadCreature();
-                            if(isDead()) {
-                                battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
-                                dead.setPosition(getPosition().getX(),getPosition().getY());
-                                battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
-                            }
-                            else {
-                                battlefield[i][j].creatureLeave();
-                                dead.setPosition(next.getX(),next.getY());
-                                battlefield[i][j].creatureEnter(dead);
-                            }
+                        }
+                        DeadCreature dead = new DeadCreature();
+                        if(isDead()) {
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
+                            dead.setPosition(getPosition().getX(),getPosition().getY());
+                            battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
+                        }
+                        else {
+                            battlefield[i][j].creatureLeave();
+                            dead.setPosition(next.getX(),next.getY());
+                            battlefield[i][j].creatureEnter(dead);
                         }
                     }
                 }

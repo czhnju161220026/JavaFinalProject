@@ -30,10 +30,10 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
         this.color = color;
         int index = color.ordinal()+1;
         image = new Image(""+index+".png");
-        attackPower = 30;
-        denfensePower = 30;
-        health = 400;
-        maxHelth = 400;
+        attackPower = color.getAttackPower();
+        denfensePower = color.getDefensePower();
+        health = color.getMaxHelth();
+        maxHelth = color.getMaxHelth();
         property = CreatureAttribute.GOOD;
     }
 
@@ -91,7 +91,7 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
                 }
             }
         }
-        if(trace.size() > 15) {
+        if(trace.size() > 18) {
             return moveToCentralField();
         }
         //周围没有敌人，随机行走
@@ -119,6 +119,9 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
             int i = next.getI();
             int j = next.getJ();
             synchronized (battlefield) {
+                if(health<=0) {
+                    break;
+                }
                 if(battlefield[i][j].isEmpty()) {
                     trace.add(next);
                     move(next);
@@ -127,7 +130,9 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
                     trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.BAD) {
-                        meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        synchronized (meetQueue) {
+                            meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        }
                         DeadCreature dead = new DeadCreature();
                         if(isDead()) {
                             battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();

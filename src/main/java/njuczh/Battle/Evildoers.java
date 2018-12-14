@@ -27,10 +27,14 @@ public class Evildoers {
         scorpion.setPosition(17*72,5*72);
     }
     public static  boolean allDead() {
-        return aliveCount == 0;
+        synchronized (Evildoers.class) {
+            return aliveCount == 0;
+        }
     }
     public static void evildoerDie() {
-        aliveCount--;
+        synchronized (Evildoers.class) {
+            aliveCount--;
+        }
     }
 
     public String changeFormation(FormationProvider fp, Block[][] battlefield) {

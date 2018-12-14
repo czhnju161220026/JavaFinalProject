@@ -93,11 +93,11 @@ public class GameRound implements Runnable{
         int FPS = 0;
         while(isGamming) {
             if(Heroes.allDead()) {
-                textArea.appendText("妖怪赢得胜利。");
+                textArea.appendText("妖怪赢得胜利。\n");
                 isGamming = false;
             }
             if(Evildoers.allDead()) {
-                textArea.appendText("葫芦娃赢得胜利。");
+                textArea.appendText("葫芦娃赢得胜利。\n");
                 isGamming = false;
             }
             try {
@@ -123,7 +123,9 @@ public class GameRound implements Runnable{
                     while(!hitQueue.isEmpty()) {
                         BulletHit hit = hitQueue.dequeue();
                         gc.drawImage(explode,hit.getPos().getX(),hit.getPos().getY()+15,40,40);
-                        textArea.appendText(hit.getResult());
+                        if(hit.getResult()!="") {
+                            textArea.appendText(hit.getResult());
+                        }
                     }
                 }
                 synchronized (meetQueue) {
@@ -134,7 +136,7 @@ public class GameRound implements Runnable{
                 }
                 gc.setStroke(Color.WHITE);
                 gc.strokeText("FPS: "+FPS,5,30); //绘制帧数
-                TimeUnit.MILLISECONDS.sleep(20);
+                TimeUnit.MILLISECONDS.sleep(50);
                 endTime = System.currentTimeMillis();
                 FPS = (int)(1000/(endTime-startTime));  //计算瞬时帧数
             }

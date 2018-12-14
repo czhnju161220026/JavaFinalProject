@@ -55,6 +55,9 @@ public class Grandfather extends Creature implements Cure,Runnable{
             int i = next.getI();
             int j = next.getJ();
             synchronized (battlefield) {
+                if(health<=0) {
+                    break;
+                }
                 if(battlefield[i][j].isEmpty()) {
                     trace.add(next);
                     move(next);
@@ -63,7 +66,9 @@ public class Grandfather extends Creature implements Cure,Runnable{
                     trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.BAD) {
-                        meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        synchronized (meetQueue) {
+                            meetQueue.enqueue(new CreaturesMeet(this,creature));
+                        }
                         DeadCreature dead = new DeadCreature();
                         if(isDead()) {
                             battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
