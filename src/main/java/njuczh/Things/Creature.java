@@ -1,5 +1,4 @@
 package njuczh.Things;
-import javafx.geometry.Pos;
 import njuczh.Attributes.*;
 import javafx.scene.image.Image;
 import njuczh.Battle.Block;
@@ -7,7 +6,6 @@ import njuczh.Battle.CreaturesMeet;
 import sun.misc.Queue;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public abstract class Creature extends Thing{
     private Position position= new Position();
@@ -21,6 +19,7 @@ public abstract class Creature extends Thing{
     protected ArrayList<Position> trace = new ArrayList<>();
     protected static Block[][] battlefield;
     protected static Queue<CreaturesMeet> meetQueue;
+    protected static boolean isReviewing = false;
     public int getAttackPower() {
         return attackPower;
     }
@@ -102,5 +101,17 @@ public abstract class Creature extends Thing{
         }
 
         return next;
+    }
+
+    public static void setIsReviewing() {
+        isReviewing = true;
+    }
+
+    public static void setIsGamming() {
+        isReviewing = false;
+    }
+
+    public void setTrace(ArrayList<Position> trace) {
+        this.trace = trace;
     }
 }

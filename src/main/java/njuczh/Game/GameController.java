@@ -47,8 +47,11 @@ public class GameController implements Initializable{
     private int currentFormationHero = 3;
     private int currentFormationEvil = 3;
     private boolean isGamming = false;
+    private boolean isReviewing = false;
     private GameRound gameRound;
+    private GameReview gameReview;
     private ExecutorService gameLauncher = Executors.newSingleThreadExecutor();
+    private ExecutorService reviewLauncher = Executors.newSingleThreadExecutor();
 
 
     //内部类：处理键盘事件
@@ -58,7 +61,7 @@ public class GameController implements Initializable{
     //游戏中ESC可以提前结束本轮
     class KeyBoredHandler implements EventHandler<KeyEvent> {
         public void handle(KeyEvent event) {
-            if(!isGamming) {
+            if(!isGamming&&!isReviewing) {
                 if(event.getCode()==KeyCode.SPACE) {
                     startGameHandler();
                 }
@@ -76,7 +79,7 @@ public class GameController implements Initializable{
                 }
             }
             else {
-                if(event.getCode()==KeyCode.ESCAPE) {
+                if(isGamming&&event.getCode()==KeyCode.ESCAPE) {
                     quitGameHandler();
                 }
             }
@@ -97,7 +100,7 @@ public class GameController implements Initializable{
 
     //用户按下按钮或者通过键盘SPACE触发之后，自动将焦点设置到游戏区域
     @FXML private void startGameHandler() {
-        if(!isGamming) {
+        if(!isGamming&&!isReviewing) {
             Stage stage = (Stage)aPane.getScene().getWindow();
             stage.setOnCloseRequest(new ClickCloseHandler());
             gameLog.clear();
@@ -115,20 +118,55 @@ public class GameController implements Initializable{
             gameLauncher.shutdown();
         }
     }
+
+    @FXML private void loadLogHandler() {
+        System.out.println("加载存档");
+        FileChooser logChooser = new FileChooser();
+        logChooser.setTitle("选择游戏日志文件");
+        FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
+        logChooser.getExtensionFilters().add(extensionFilter);
+        Stage stage = (Stage)aPane.getScene().getWindow();
+        File log =logChooser.showOpenDialog(stage);
+        if(log!=null) {
+            isReviewing = true;
+            gameLog.clear();
+            gameLog.appendText("开始回放!\n");
+            System.out.println(log.getName());
+            reviewLauncher = Executors.newSingleThreadExecutor();
+            gameReview = new GameReview(log,gameArea.getGraphicsContext2D(),gameLog);
+            reviewLauncher.execute(gameReview);
+            reviewLauncher.shutdown();
+        }
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
+    }
+
     @FXML private void quitGameHandler() {
-        if(isGamming) {
+        if(isGamming||isReviewing) {
             GraphicsContext gc = gameArea.getGraphicsContext2D();
             gc.drawImage(background,0,0,1296,721);
-            isGamming = false;
             try{
-                gameRound.endGame();
-                gameLauncher.shutdown();
-                while(!gameLauncher.isTerminated()){}
+                if(isGamming) {
+                    gameRound.endGame();
+                    gameLauncher.shutdown();
+                    while(!gameLauncher.isTerminated()){}
+                }
+                else {
+                    //添加对GameReview的退出处理
+                    gameReview.endReview();
+                    reviewLauncher.shutdown();
+                    while(!reviewLauncher.isTerminated()){}
+                }
             }
             catch (NullPointerException e) {
                 e.printStackTrace();
             }
             finally {
+                isGamming = false;
+                isReviewing = false;
                 battlefield = new Battlefield();
                 heroes = new Heroes();
                 evildoers = new Evildoers();
@@ -182,22 +220,6 @@ public class GameController implements Initializable{
             }
         });
     }
-    @FXML private void loadLogHandler() {
-        System.out.println("加载存档");
-        FileChooser logChooser = new FileChooser();
-        logChooser.setTitle("选择游戏日志文件");
-        FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
-        logChooser.getExtensionFilters().add(extensionFilter);
-        Stage stage = (Stage)aPane.getScene().getWindow();
-        File log =logChooser.showOpenDialog(stage);
-        System.out.println(log.getName());
-
-        Platform.runLater(new Runnable() {
-            public void run() {
-                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
-            }
-        });
-    }
     public void initialize(URL url, ResourceBundle rb) {
         gameLog.setText("游戏准备开始.葫芦娃和妖怪摆好了长蛇阵！\n");
         gameLog.setEditable(false);
@@ -217,7 +239,7 @@ public class GameController implements Initializable{
         gameArea.setOnKeyPressed(new KeyBoredHandler());
         providers.addAll(Arrays.asList(new HeYi(),new YanXing(),new ChongE(),
                 new ChangShe(),new YuLin(),new Fang(),new YanYue(),new FengShi()));
-        Creature.setBattlefield(battlefield.getBattlefield());
+        //Creature.setBattlefield(battlefield.getBattlefield());
         heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
         evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
         battlefield.displayBattlefield(gameArea.getGraphicsContext2D());

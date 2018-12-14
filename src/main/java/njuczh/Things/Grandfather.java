@@ -6,7 +6,6 @@ import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;
 import javafx.scene.image.Image;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Grandfather extends Creature implements Cure,Runnable{
@@ -51,7 +50,13 @@ public class Grandfather extends Creature implements Cure,Runnable{
     public void run() {
         while(health !=0) {
             cheer();
-            Position next = moveToCentralField();
+            Position next;
+            if(!isReviewing) {
+                next = moveToCentralField();
+            }
+            else {
+                next = null;
+            }
             int i = next.getI();
             int j = next.getJ();
             synchronized (battlefield) {

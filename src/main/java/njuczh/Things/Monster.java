@@ -51,56 +51,63 @@ public class Monster extends Creature implements Runnable, Shoot {
     }
     @Override
     protected Position nextMove() {
-        Random random = new Random();
-        int choice = random.nextInt()%8;
-        int i = getPosition().getI();
-        int j = getPosition().getJ();
-        Position next = new Position(getPosition().getX(),getPosition().getY());
-        synchronized (battlefield) {
+        if(!isReviewing) {
+            Random random = new Random();
+            int choice = random.nextInt()%8;
+            int i = getPosition().getI();
+            int j = getPosition().getJ();
+            Position next = new Position(getPosition().getX(),getPosition().getY());
+            synchronized (battlefield) {
 
-            if(i>0&&!battlefield[i-1][j].isEmpty()) {
-                if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.GOOD) {
-                    next.setI(i-1);
-                    return next;
+                if(i>0&&!battlefield[i-1][j].isEmpty()) {
+                    if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.GOOD) {
+                        next.setI(i-1);
+                        return next;
+                    }
+                }
+                else if(i<9&&!battlefield[i+1][j].isEmpty()) {
+                    if(battlefield[i+1][j].getCreature().getProperty()==CreatureAttribute.GOOD) {
+                        next.setI(i+1);
+                        return next;
+                    }
+                }
+                else if(j>0&&!battlefield[i][j-1].isEmpty()) {
+                    if(battlefield[i][j-1].getCreature().getProperty()==CreatureAttribute.GOOD) {
+                        next.setJ(j-1);
+                        return next;
+                    }
+                }
+                else if(j<17&&!battlefield[i][j+1].isEmpty()) {
+                    if(battlefield[i][j+1].getCreature().getProperty()==CreatureAttribute.GOOD) {
+                        next.setJ(j+1);
+                        return next;
+                    }
                 }
             }
-            else if(i<9&&!battlefield[i+1][j].isEmpty()) {
-                if(battlefield[i+1][j].getCreature().getProperty()==CreatureAttribute.GOOD) {
-                    next.setI(i+1);
-                    return next;
-                }
+
+            if(trace.size() > 10) {
+                return moveToCentralField();
             }
-            else if(j>0&&!battlefield[i][j-1].isEmpty()) {
-                if(battlefield[i][j-1].getCreature().getProperty()==CreatureAttribute.GOOD) {
-                    next.setJ(j-1);
-                    return next;
-                }
+
+            if(choice ==0 && j <17) {
+                next.setJ(j+1);
             }
-            else if(j<17&&!battlefield[i][j+1].isEmpty()) {
-                if(battlefield[i][j+1].getCreature().getProperty()==CreatureAttribute.GOOD) {
-                    next.setJ(j+1);
-                    return next;
-                }
+            if(choice == 1 && i > 0) {
+                next.setI(i-1);
             }
+            if(choice > 2&&j>0) {
+                next.setJ(j-1);
+            }
+            if(choice ==2&&i<9) {
+                next.setI(i+1);
+            }
+            return next;
+        }
+        //在回放状态
+        else {
+            return null;
         }
 
-        if(trace.size() > 10) {
-            return moveToCentralField();
-        }
-
-        if(choice ==0 && j <17) {
-            next.setJ(j+1);
-        }
-        if(choice == 1 && i > 0) {
-            next.setI(i-1);
-        }
-        if(choice > 2&&j>0) {
-            next.setJ(j-1);
-        }
-        if(choice ==2&&i<9) {
-            next.setI(i+1);
-        }
-        return next;
     }
     public void run() {
         Random random = new Random();

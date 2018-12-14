@@ -1,6 +1,5 @@
 package njuczh.Game;
 
-import javafx.geometry.Pos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
@@ -42,10 +41,11 @@ public class GameRound implements Runnable{
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
     private ExecutorService evilBulletExecutor;
-    private ExecutorService creatureExcutor;
+    private ExecutorService creatureExecutor;
 
 
     public GameRound(Heroes heroes,Evildoers evildoers,Battlefield battlefield,GraphicsContext gc,TextArea textArea) {
+        Creature.setIsGamming();
         this.calabashBrothers = heroes.getCalabashBrothers();
         this.grandfather = heroes.getGrandfather();
         this.scorpion = evildoers.getScorpion();
@@ -60,13 +60,14 @@ public class GameRound implements Runnable{
         meetQueue = new Queue<>();
         heroBulletExecutor = Executors.newCachedThreadPool();
         evilBulletExecutor = Executors.newCachedThreadPool();
-        creatureExcutor = Executors.newCachedThreadPool();
+        creatureExecutor = Executors.newCachedThreadPool();
         CalabashBrother.setBullets(heroBullets);
         CalabashBrother.setBulletExecutor(heroBulletExecutor);
         Monster.setBullets(evilBullets);
         Monster.setBulletExecutor(evilBulletExecutor);
         Bullet.setHitQueue(hitQueue);
         Creature.setMeetQueue(meetQueue);
+        Creature.setBattlefield(battlefield.getBattlefield());
     }
 
     public Queue<BulletHit> getHitQueue() {
@@ -75,15 +76,15 @@ public class GameRound implements Runnable{
 
     private void initThreads() {
         for(CalabashBrother cb:calabashBrothers) {
-            creatureExcutor.execute(cb);
+            creatureExecutor.execute(cb);
         }
-        creatureExcutor.execute(grandfather);
+        creatureExecutor.execute(grandfather);
         for(Monster monster:monsters) {
-            creatureExcutor.execute(monster);
+            creatureExecutor.execute(monster);
         }
-        creatureExcutor.execute(scorpion);
-        creatureExcutor.execute(snake);
-        creatureExcutor.shutdown();
+        creatureExecutor.execute(scorpion);
+        creatureExecutor.execute(snake);
+        creatureExecutor.shutdown();
     }
 
     private void displayAll() {
@@ -236,11 +237,11 @@ public class GameRound implements Runnable{
         grandfather.die();
         snake.die();
         scorpion.die();
-        creatureExcutor.shutdown();
+        creatureExecutor.shutdown();
         heroBulletExecutor.shutdown();
         evilBulletExecutor.shutdown();
         //等待所有线程正常退出
-        while(!creatureExcutor.isTerminated()) {}
+        while(!creatureExecutor.isTerminated()) {}
         while(!evilBulletExecutor.isTerminated()) {}
         while(!heroBulletExecutor.isTerminated()) {}
     }
