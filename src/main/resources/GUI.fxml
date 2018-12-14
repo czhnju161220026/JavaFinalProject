@@ -36,6 +36,7 @@
             <Button fx:id="evildoersChangeFormation" mnemonicParsing="false" onAction="#evildoersChangeFormationHandler" prefHeight="40.0" prefWidth="180.0" text="Button" GridPane.columnIndex="3" />
             <TextArea fx:id="gameLog" prefHeight="730.0" prefWidth="284.0" GridPane.columnIndex="4" GridPane.rowIndex="1" GridPane.rowSpan="4" />
             <Canvas fx:id="gameArea" height="721.0" width="1296.0" GridPane.columnSpan="5" GridPane.rowIndex="1" GridPane.rowSpan="3" />
+            <Button fx:id="loadLog" mnemonicParsing="false" onAction="#loadLogHandler" prefHeight="40.0" prefWidth="180.0" text="Button" GridPane.columnIndex="4" />
          </children>
       </GridPane>
    </children>

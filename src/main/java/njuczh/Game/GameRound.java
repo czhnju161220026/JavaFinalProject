@@ -171,7 +171,7 @@ public class GameRound implements Runnable{
     private void outputLog() {
         try{
             Date current = new Date();
-            BufferedWriter fout = new BufferedWriter(new FileWriter(new File("Log_"+current.getTime()+".txt")));
+            BufferedWriter fout = new BufferedWriter(new FileWriter(new File("Log_"+current.getTime()+".myLog")));
             for(CalabashBrother cb:calabashBrothers) {
                 fout.write(""+cb.getTrace().size()+'\n');
                 for(Position pos:cb.getTrace()) {

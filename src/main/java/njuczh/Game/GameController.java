@@ -1,4 +1,5 @@
 package njuczh.Game;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -17,6 +18,7 @@ import javafx.scene.canvas.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import njuczh.Battle.Battlefield;
@@ -33,6 +35,7 @@ public class GameController implements Initializable{
     @FXML  Button quitGame;
     @FXML  Button heroesChangeFormation;
     @FXML  Button evildoersChangeFormation;
+    @FXML  Button loadLog;
     @FXML  TextArea gameLog;
     @FXML  Canvas gameArea;
     @FXML  AnchorPane aPane;
@@ -64,6 +67,12 @@ public class GameController implements Initializable{
                 }
                 if(event.getCode()==KeyCode.DOWN) {
                     evildoersChangeFormationHandler();
+                }
+                if(event.getCode()==KeyCode.L) {
+                    loadLogHandler();
+                }
+                if(event.getCode()==KeyCode.LEFT||event.getCode()==KeyCode.RIGHT) {
+                    //do nothing
                 }
             }
             else {
@@ -173,12 +182,28 @@ public class GameController implements Initializable{
             }
         });
     }
+    @FXML private void loadLogHandler() {
+        System.out.println("加载存档");
+        FileChooser logChooser = new FileChooser();
+        logChooser.setTitle("选择游戏日志文件");
+        FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
+        logChooser.getExtensionFilters().add(extensionFilter);
+        Stage stage = (Stage)aPane.getScene().getWindow();
+        File log =logChooser.showOpenDialog(stage);
+        System.out.println(log.getName());
 
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+            }
+        });
+    }
     public void initialize(URL url, ResourceBundle rb) {
         gameLog.setText("游戏准备开始.葫芦娃和妖怪摆好了长蛇阵！\n");
         gameLog.setEditable(false);
         startGame.setText("开始游戏");
         quitGame.setText("结束游戏");
+        loadLog.setText("加载回放");
         heroesChangeFormation.setText("葫芦娃变阵");
         evildoersChangeFormation.setText("妖怪变阵");
         GraphicsContext gc = gameArea.getGraphicsContext2D();
