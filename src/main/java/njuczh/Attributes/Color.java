@@ -18,7 +18,7 @@ public enum Color {
     GREEN("四娃",50,50,300),
     CYAN("五娃",50,50,300),
     BLUE("六娃",40,40,300),
-    PURPLE("七娃",70,40,300);
+    PURPLE("七娃",55,40,300);
 
     final private  String name;
     final private int attackPower;

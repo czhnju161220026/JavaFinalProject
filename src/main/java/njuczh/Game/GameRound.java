@@ -8,7 +8,9 @@ import njuczh.Attributes.Position;
 import njuczh.Battle.*;
 import njuczh.MyAnnotation.*;
 import njuczh.Things.*;
-import sun.misc.Queue;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,6 +40,9 @@ public class GameRound implements Runnable{
     private TextArea textArea = null;
     private Image background= new Image("background.png");
     private Image explode = new Image("explode.png");
+    private Image victory = new Image("victory.png");
+    private Image failed = new Image("failed.png");
+
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
     private ExecutorService evilBulletExecutor;
@@ -56,8 +61,8 @@ public class GameRound implements Runnable{
         this.textArea = textArea;
         heroBullets = new ArrayList<Bullet>();
         evilBullets = new ArrayList<Bullet>();
-        hitQueue = new Queue<>();
-        meetQueue = new Queue<>();
+        hitQueue = new LinkedList<>();
+        meetQueue = new LinkedList<>();
         heroBulletExecutor = Executors.newCachedThreadPool();
         evilBulletExecutor = Executors.newCachedThreadPool();
         creatureExecutor = Executors.newCachedThreadPool();
@@ -70,9 +75,6 @@ public class GameRound implements Runnable{
         Creature.setBattlefield(battlefield.getBattlefield());
     }
 
-    public Queue<BulletHit> getHitQueue() {
-        return hitQueue;
-    }
 
     private void initThreads() {
         for(CalabashBrother cb:calabashBrothers) {
@@ -122,7 +124,7 @@ public class GameRound implements Runnable{
                 }
                 synchronized (hitQueue) {
                     while(!hitQueue.isEmpty()) {
-                        BulletHit hit = hitQueue.dequeue();
+                        BulletHit hit = hitQueue.poll();
                         gc.drawImage(explode,hit.getPos().getX(),hit.getPos().getY()+15,40,40);
                         if(hit.getResult()!="") {
                             textArea.appendText(hit.getResult());
@@ -131,7 +133,7 @@ public class GameRound implements Runnable{
                 }
                 synchronized (meetQueue) {
                     while(!meetQueue.isEmpty()) {
-                        CreaturesMeet meet = meetQueue.dequeue();
+                        CreaturesMeet meet = meetQueue.poll();
                         textArea.appendText(meet.getResult());
                     }
                 }
@@ -164,6 +166,12 @@ public class GameRound implements Runnable{
                     });
                 }
             }
+        }
+        if(Heroes.allDead()) {
+            gc.drawImage(failed,402,202,522,316);
+        }
+        else {
+            gc.drawImage(victory,402,202,522,316);
         }
         endGame();
     }

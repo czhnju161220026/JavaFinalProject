@@ -8,7 +8,7 @@ import njuczh.Attributes.Position;
 import njuczh.Battle.Block;
 import njuczh.Battle.BulletHit;
 import njuczh.MyAnnotation.TODO;
-import sun.misc.Queue;
+import java.util.Queue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -100,7 +100,7 @@ public class Bullet extends Thing implements Runnable{
                     if(target == creature.getProperty()) {
                         BulletHit bulletHit = new BulletHit(this,creature);
                         synchronized (hitQueue) {
-                            hitQueue.enqueue(bulletHit);
+                            hitQueue.offer(bulletHit);
                         }
                         if(creature.isDead()) {
                             battlefield[i][j].creatureLeave();

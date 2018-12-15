@@ -62,46 +62,13 @@ public class Snake extends Monster implements Runnable, Cure {
         while(health !=0) {
             cheer();
             Position next = nextMove();
-            int i = next.getI();
-            int j = next.getJ();
-            synchronized (battlefield) {
-                if(health<=0) {
-                    break;
-                }
-                if(!isReviewing) {
-                    trace.add(next);
-                }
-                if(battlefield[i][j].isEmpty()) {
-                    move(next);
-                }
-                else {
-                    //trace.add(new Position(getPosition().getX(),getPosition().getY()));
-                    Creature creature = battlefield[i][j].getCreature();
-                    if(creature.getProperty()==CreatureAttribute.GOOD) {
-                        synchronized (meetQueue) {
-                            meetQueue.enqueue(new CreaturesMeet(this,creature));
-                        }
-                        DeadCreature dead = new DeadCreature();
-                        if(isDead()) {
-                            battlefield[getPosition().getI()][getPosition().getJ()].creatureLeave();
-                            dead.setPosition(getPosition().getX(),getPosition().getY());
-                            battlefield[getPosition().getI()][getPosition().getJ()].creatureEnter(dead);
-                        }
-                        else {
-                            battlefield[i][j].creatureLeave();
-                            dead.setPosition(next.getX(),next.getY());
-                            battlefield[i][j].creatureEnter(dead);
-                        }
-                    }
-                    else {
-                        //如果因为队友占据了位置而阻塞了前进，重新记录移动轨迹
-                        if(!isReviewing) {
-                            trace.remove(trace.size()-1);
-                            trace.add(new Position(getPosition().getX(),getPosition().getY()));
-                        }
-                    }
-                }
+            if(health<=0) {
+                break;
             }
+            if(!isReviewing) {
+                trace.add(next);
+            }
+            fight(next);
             try{
                 TimeUnit.MILLISECONDS.sleep(1000);
             }

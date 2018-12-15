@@ -8,7 +8,9 @@ import njuczh.Attributes.Position;
 import njuczh.Battle.*;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Things.*;
-import sun.misc.Queue;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,12 +33,14 @@ public class GameReview implements Runnable{
     private Battlefield battlefield;
     private ArrayList<Bullet> heroBullets = new ArrayList<>();
     private ArrayList<Bullet> evilBullets = new ArrayList<>();
-    private Queue<BulletHit> hitQueue = new Queue<>();
-    private Queue<CreaturesMeet> meetQueue = new Queue<>();
+    private Queue<BulletHit> hitQueue = new LinkedList<>();
+    private Queue<CreaturesMeet> meetQueue = new LinkedList<>();
     private GraphicsContext gc;
     private TextArea textArea = null;
     private Image background= new Image("background.png");
     private Image explode = new Image("explode.png");
+    private Image victory = new Image("victory.png");
+    private Image failed = new Image("failed.png");
     private boolean isReviewing = true;
     private ExecutorService heroBulletExecutor;
     private ExecutorService evilBulletExecutor;
@@ -129,6 +133,9 @@ public class GameReview implements Runnable{
             snake.setTrace(snakeTrace);
             scorpion.setTrace(scorpionTrace);
         }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         catch (IOException e) {
             e.printStackTrace();
         }
@@ -190,7 +197,7 @@ public class GameReview implements Runnable{
                 }
                 synchronized (hitQueue) {
                     while(!hitQueue.isEmpty()) {
-                        BulletHit hit = hitQueue.dequeue();
+                        BulletHit hit = hitQueue.poll();
                         gc.drawImage(explode,hit.getPos().getX(),hit.getPos().getY()+15,40,40);
                         if(hit.getResult()!="") {
                             textArea.appendText(hit.getResult());
@@ -199,7 +206,7 @@ public class GameReview implements Runnable{
                 }
                 synchronized (meetQueue) {
                     while(!meetQueue.isEmpty()) {
-                        CreaturesMeet meet = meetQueue.dequeue();
+                        CreaturesMeet meet = meetQueue.poll();
                         textArea.appendText(meet.getResult());
                     }
                 }
@@ -232,6 +239,12 @@ public class GameReview implements Runnable{
                     });
                 }
             }
+        }
+        if(Heroes.allDead()) {
+            gc.drawImage(failed,402,202,522,316);
+        }
+        else {
+            gc.drawImage(victory,402,202,522,316);
         }
         endReview();
     }
