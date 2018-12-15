@@ -48,6 +48,9 @@ public class Grandfather extends Creature implements Cure,Runnable{
     }
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
+        if(!isReviewing) {
+            trace.add(new Position(getPosition().getX(),getPosition().getY()));
+        }
         while(health !=0) {
             cheer();
             Position next;
@@ -55,7 +58,13 @@ public class Grandfather extends Creature implements Cure,Runnable{
                 next = moveToCentralField();
             }
             else {
-                next = null;
+                if(traceIndex < trace.size()) {
+                    next = trace.get(traceIndex);
+                    traceIndex++;
+                }
+                else {
+                    next = moveToCentralField();
+                }
             }
             int i = next.getI();
             int j = next.getJ();
@@ -63,12 +72,14 @@ public class Grandfather extends Creature implements Cure,Runnable{
                 if(health<=0) {
                     break;
                 }
-                if(battlefield[i][j].isEmpty()) {
+                if(!isReviewing) {
                     trace.add(next);
+                }
+                if(battlefield[i][j].isEmpty()) {
                     move(next);
                 }
                 else {
-                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                    //trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.BAD) {
                         synchronized (meetQueue) {
@@ -84,6 +95,13 @@ public class Grandfather extends Creature implements Cure,Runnable{
                             battlefield[i][j].creatureLeave();
                             dead.setPosition(next.getX(),next.getY());
                             battlefield[i][j].creatureEnter(dead);
+                        }
+                    }
+                    else {
+                        //如果因为队友占据了位置而阻塞了前进，重新记录移动轨迹
+                        if(!isReviewing) {
+                            trace.remove(trace.size()-1);
+                            trace.add(new Position(getPosition().getX(),getPosition().getY()));
                         }
                     }
                 }

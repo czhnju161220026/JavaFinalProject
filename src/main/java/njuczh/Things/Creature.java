@@ -17,6 +17,7 @@ public abstract class Creature extends Thing{
     protected CreatureAttribute property;
     protected boolean moveFinished;
     protected ArrayList<Position> trace = new ArrayList<>();
+    protected int traceIndex = 0;
     protected static Block[][] battlefield;
     protected static Queue<CreaturesMeet> meetQueue;
     protected static boolean isReviewing = false;
@@ -112,6 +113,8 @@ public abstract class Creature extends Thing{
     }
 
     public void setTrace(ArrayList<Position> trace) {
+        position = trace.get(0);
+        trace.remove(0);
         this.trace = trace;
     }
 }

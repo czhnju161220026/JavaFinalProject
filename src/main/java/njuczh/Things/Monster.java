@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Monster extends Creature implements Runnable, Shoot {
-    private static ArrayList<Bullet> bullets = null;
-    private static ExecutorService bulletExecutor = null;
+    protected static ArrayList<Bullet> bullets = null;
+    protected static ExecutorService bulletExecutor = null;
     protected int cureCount=0;
     public Monster() {
         this.battlefield = battlefield;
@@ -105,12 +105,20 @@ public class Monster extends Creature implements Runnable, Shoot {
         }
         //在回放状态
         else {
-            return null;
+            if(traceIndex < trace.size()) {
+                return trace.get(traceIndex++);
+            }
+            else {
+                return moveToCentralField();
+            }
         }
 
     }
     public void run() {
         Random random = new Random();
+        if(!isReviewing) {
+            trace.add(new Position(getPosition().getX(),getPosition().getY()));
+        }
         //现阶段采取避让策略
         boolean timeToShoot = false;
         while(health !=0) {
@@ -121,12 +129,14 @@ public class Monster extends Creature implements Runnable, Shoot {
                 if(health<=0) {
                     break;
                 }
-                if(battlefield[i][j].isEmpty()) {
+                if(!isReviewing) {
                     trace.add(next);
+                }
+                if(battlefield[i][j].isEmpty()) {
                     move(next);
                 }
                 else {
-                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                    //trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.GOOD) {
                         synchronized (meetQueue) {
@@ -144,6 +154,13 @@ public class Monster extends Creature implements Runnable, Shoot {
                             battlefield[i][j].creatureEnter(dead);
                         }
                     }
+                    else {
+                        //如果因为队友占据了位置而阻塞了前进，重新记录移动轨迹
+                        if(!isReviewing) {
+                            trace.remove(trace.size()-1);
+                            trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                        }
+                    }
                 }
             }
             try{
@@ -153,7 +170,6 @@ public class Monster extends Creature implements Runnable, Shoot {
                     synchronized (bullets) {
                         bullets.add(bullet);
                     }
-
                 }
                 timeToShoot = !timeToShoot;
                 synchronized (this) {

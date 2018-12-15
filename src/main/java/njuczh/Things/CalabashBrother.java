@@ -113,12 +113,20 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
         }
         //在回放状态，从trace中取出每一次的路线
         else {
-            return null;
+            if(traceIndex < trace.size()) {
+                return trace.get(traceIndex++);
+            }
+            else {
+                return moveToCentralField();
+            }
         }
     }
 
     @TODO(todo = "随机行走,目前只采取避让策略，之后考虑碰撞事件")
     public void run() {
+        if(!isReviewing) {
+            trace.add(new Position(getPosition().getX(),getPosition().getY()));
+        }
         boolean timeToShoot = true;
         while(health>0) {
             Position next = nextMove();
@@ -128,12 +136,14 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
                 if(health<=0) {
                     break;
                 }
-                if(battlefield[i][j].isEmpty()) {
+                if(!isReviewing) {
                     trace.add(next);
+                }
+                if(battlefield[i][j].isEmpty()) {
                     move(next);
                 }
                 else {
-                    trace.add(new Position(getPosition().getX(),getPosition().getY()));
+                    //trace.add(new Position(getPosition().getX(),getPosition().getY()));
                     Creature creature = battlefield[i][j].getCreature();
                     if(creature.getProperty()==CreatureAttribute.BAD) {
                         synchronized (meetQueue) {
@@ -149,6 +159,13 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
                             battlefield[i][j].creatureLeave();
                             dead.setPosition(next.getX(),next.getY());
                             battlefield[i][j].creatureEnter(dead);
+                        }
+                    }
+                    else {
+                        //如果因为队友占据了位置而阻塞了前进，重新记录移动轨迹
+                        if(!isReviewing) {
+                            trace.remove(trace.size()-1);
+                            trace.add(new Position(getPosition().getX(),getPosition().getY()));
                         }
                     }
                 }

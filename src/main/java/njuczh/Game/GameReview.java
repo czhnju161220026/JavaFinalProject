@@ -29,10 +29,10 @@ public class GameReview implements Runnable{
     private Snake snake;
     private Scorpion scorpion;
     private Battlefield battlefield;
-    private ArrayList<Bullet> heroBullets;
-    private ArrayList<Bullet> evilBullets;
-    private Queue<BulletHit> hitQueue;
-    private Queue<CreaturesMeet> meetQueue;
+    private ArrayList<Bullet> heroBullets = new ArrayList<>();
+    private ArrayList<Bullet> evilBullets = new ArrayList<>();
+    private Queue<BulletHit> hitQueue = new Queue<>();
+    private Queue<CreaturesMeet> meetQueue = new Queue<>();
     private GraphicsContext gc;
     private TextArea textArea = null;
     private Image background= new Image("background.png");
@@ -48,12 +48,22 @@ public class GameReview implements Runnable{
         this.heroBulletExecutor = Executors.newCachedThreadPool();
         this.evilBulletExecutor = Executors.newCachedThreadPool();
         this.creatureExecutor = Executors.newCachedThreadPool();
-
+        this.battlefield = new Battlefield();
         Heroes heroes = new Heroes();
         Evildoers evildoers = new Evildoers();
-        Battlefield battlefield = new Battlefield();
         Creature.setBattlefield(battlefield.getBattlefield());
         Creature.setIsReviewing();
+        CalabashBrother.setBullets(heroBullets);
+        CalabashBrother.setBulletExecutor(heroBulletExecutor);
+        Monster.setBullets(evilBullets);
+        Monster.setBulletExecutor(evilBulletExecutor);
+        Bullet.setHitQueue(hitQueue);
+        Creature.setMeetQueue(meetQueue);
+        calabashBrothers = heroes.getCalabashBrothers();
+        grandfather = heroes.getGrandfather();
+        monsters = evildoers.getMonsters();
+        snake = evildoers.getSnake();
+        scorpion = evildoers.getScorpion();
 
         Scanner fin=null;
         try {
@@ -66,13 +76,69 @@ public class GameReview implements Runnable{
 
             //读取文件中所存储的生物的行进信息
             //进行复盘游戏
+            for(int i = 0;i < 7;i++) {
+                int count = fin.nextInt();
+                ArrayList<Position> trace = new ArrayList<>();
+                for(int j = 0;j<count;j++) {
+                    int x = fin.nextInt();
+                    int y = fin.nextInt();
+                    trace.add(new Position(x,y));
+                }
+                cbTraces.add(trace);
+            }
 
+            int count = fin.nextInt();
+            for(int i = 0;i < count;i++) {
+                int x = fin.nextInt();
+                int y = fin.nextInt();
+                grandfatherTrace.add(new Position(x,y));
+            }
+
+            for(int i = 0;i < 8;i++) {
+                count = fin.nextInt();
+                ArrayList<Position> trace = new ArrayList<>();
+                for(int j = 0;j < count;j++) {
+                    int x = fin.nextInt();
+                    int y = fin.nextInt();
+                    trace.add(new Position(x,y));
+                }
+                monsterTraces.add(trace);
+            }
+
+            count = fin.nextInt();
+            for(int i = 0;i < count;i++) {
+                int x = fin.nextInt();
+                int y = fin.nextInt();
+                scorpionTrace.add(new Position(x,y));
+            }
+
+            count = fin.nextInt();
+            for(int i = 0;i < count;i++) {
+                int x = fin.nextInt();
+                int y = fin.nextInt();
+                snakeTrace.add(new Position(x,y));
+            }
+
+            for(int i = 0;i<7;i++) {
+                calabashBrothers.get(i).setTrace(cbTraces.get(i));
+            }
+            grandfather.setTrace(grandfatherTrace);
+            for(int i = 0;i < 8;i++) {
+                monsters.get(i).setTrace(monsterTraces.get(i));
+            }
+            snake.setTrace(snakeTrace);
+            scorpion.setTrace(scorpionTrace);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
         finally {
-            fin.close();
+            try{
+                fin.close();
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -173,12 +239,8 @@ public class GameReview implements Runnable{
     public void run() {
         while(isReviewing) {
             System.out.println("正在回放");
-            try{
-                TimeUnit.MILLISECONDS.sleep(1000);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            initThreads();
+            displayAll();
         }
     }
 

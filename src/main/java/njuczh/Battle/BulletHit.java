@@ -1,9 +1,11 @@
 package njuczh.Battle;
 
+import njuczh.Attributes.Color;
 import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Things.Bullet;
+import njuczh.Things.CalabashBrother;
 import njuczh.Things.Creature;
 import njuczh.Things.DeadCreature;
 
@@ -18,7 +20,13 @@ public class BulletHit {
         pos = new Position(bullet.getPos().getX(),bullet.getPos().getY());
         bullet.setDone();
         int harm = attackPower-creature.getDenfensePower();
-        if(harm<=0) {
+        if(creature instanceof CalabashBrother) {
+            //六娃的隐身术可以免疫远程打击
+            if(((CalabashBrother)creature).getColor() == Color.BLUE) {
+                harm = 0;
+            }
+        }
+        if(harm<=0 ) {
             //stringBuilder.append(shooterName);
             //stringBuilder.append("的未能击穿"+creature+"的防御!\n");
             //result = stringBuilder.toString();

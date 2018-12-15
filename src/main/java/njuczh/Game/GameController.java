@@ -109,6 +109,7 @@ public class GameController implements Initializable{
             Platform.runLater(new Runnable() {
                 public void run() {
                     gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                    quitGame.setText("结束游戏");
                 }
             });
             //游戏正式开始，开始随机移动和战斗
@@ -140,6 +141,7 @@ public class GameController implements Initializable{
         Platform.runLater(new Runnable() {
             public void run() {
                 gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                quitGame.setText("结束回放");
             }
         });
     }
@@ -182,6 +184,7 @@ public class GameController implements Initializable{
             public void run() {
                 gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
             }
+
         });
     }
     @FXML private void heroesChangeFormationHandler() {

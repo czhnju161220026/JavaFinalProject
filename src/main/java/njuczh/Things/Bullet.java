@@ -32,22 +32,25 @@ public class Bullet extends Thing implements Runnable{
         this.battlefield = battlefield;
         attackPower = 60;
         image = new Image(attribute.getImagePath());
-        if(attribute==BulletAttribute.EVIL) {
+        if(attribute==BulletAttribute.EVIL||attribute==BulletAttribute.STINGER) {
             target = CreatureAttribute.GOOD;
             direction = -1;
+            if(attribute == BulletAttribute.STINGER) {
+                attackPower = 90;
+            }
         }
         else {
             target = CreatureAttribute.BAD;
             direction = 1;
             if(attribute == BulletAttribute.FIRE||attribute == BulletAttribute.WATER) {
-                attackPower = 100;
+                attackPower = 110;
             }
         }
     }
     @TODO(todo = "在图像上绘制自己")
     public void display(GraphicsContext gc) {
-        if(attribute == BulletAttribute.FIRE || attribute == BulletAttribute.WATER) {
-            gc.drawImage(image,pos.getX(),pos.getY()+15,20,40);
+        if(attribute == BulletAttribute.FIRE || attribute == BulletAttribute.WATER||attribute==BulletAttribute.STINGER) {
+            gc.drawImage(image,pos.getX(),pos.getY()+15,40,20);
         }
         else {
             gc.drawImage(image,pos.getX(),pos.getY()+31,10,10);
