@@ -51,4 +51,11 @@ public class Position {
     public String toString() {
         return ""+x+" "+y;
     }
+
+    public boolean equalsTo(Position position) {
+        if(position.x == this.x && position.y == this.y) {
+            return true;
+        }
+        return false;
+    }
 }

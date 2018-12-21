@@ -106,37 +106,39 @@ public class GameController implements Initializable{
             gameLog.clear();
             gameLog.appendText("游戏开始!\n");
             isGamming = true;
-            Platform.runLater(new Runnable() {
-                public void run() {
-                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
-                    quitGame.setText("结束游戏");
-                }
-            });
             //游戏正式开始，开始随机移动和战斗
             gameLauncher = Executors.newSingleThreadExecutor();
             gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
             gameLauncher.execute(gameRound);
             gameLauncher.shutdown();
         }
+        Platform.runLater(new Runnable() {
+            public void run() {
+                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                quitGame.setText("结束游戏");
+            }
+        });
     }
 
     @FXML private void loadLogHandler() {
-        System.out.println("加载存档");
-        FileChooser logChooser = new FileChooser();
-        logChooser.setTitle("选择游戏日志文件");
-        FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
-        logChooser.getExtensionFilters().add(extensionFilter);
-        Stage stage = (Stage)aPane.getScene().getWindow();
-        File log =logChooser.showOpenDialog(stage);
-        if(log!=null) {
-            isReviewing = true;
-            gameLog.clear();
-            gameLog.appendText("开始回放!\n");
-            System.out.println(log.getName());
-            reviewLauncher = Executors.newSingleThreadExecutor();
-            gameReview = new GameReview(log,gameArea.getGraphicsContext2D(),gameLog);
-            reviewLauncher.execute(gameReview);
-            reviewLauncher.shutdown();
+        if(!isGamming && !isReviewing) {
+            System.out.println("加载存档");
+            FileChooser logChooser = new FileChooser();
+            logChooser.setTitle("选择游戏日志文件");
+            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
+            logChooser.getExtensionFilters().add(extensionFilter);
+            Stage stage = (Stage)aPane.getScene().getWindow();
+            File log =logChooser.showOpenDialog(stage);
+            if(log!=null) {
+                isReviewing = true;
+                gameLog.clear();
+                gameLog.appendText("开始回放!\n");
+                System.out.println(log.getName());
+                reviewLauncher = Executors.newSingleThreadExecutor();
+                gameReview = new GameReview(log,gameArea.getGraphicsContext2D(),gameLog);
+                reviewLauncher.execute(gameReview);
+                reviewLauncher.shutdown();
+            }
         }
         Platform.runLater(new Runnable() {
             public void run() {
