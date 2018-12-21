@@ -111,13 +111,21 @@ public class GameController implements Initializable{
             gameRound = new GameRound(heroes,evildoers,battlefield,gameArea.getGraphicsContext2D(),gameLog);
             gameLauncher.execute(gameRound);
             gameLauncher.shutdown();
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                    quitGame.setText("结束游戏");
+                }
+            });
         }
-        Platform.runLater(new Runnable() {
-            public void run() {
-                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
-                quitGame.setText("结束游戏");
-            }
-        });
+        else {
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                }
+            });
+        }
+
     }
 
     @FXML private void loadLogHandler() {
@@ -139,13 +147,20 @@ public class GameController implements Initializable{
                 reviewLauncher.execute(gameReview);
                 reviewLauncher.shutdown();
             }
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                    quitGame.setText("结束回放");
+                }
+            });
         }
-        Platform.runLater(new Runnable() {
-            public void run() {
-                gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
-                quitGame.setText("结束回放");
-            }
-        });
+        else {
+            Platform.runLater(new Runnable() {
+                public void run() {
+                    gameArea.requestFocus();  //将用户行为的焦点设置到游戏区域
+                }
+            });
+        }
     }
 
     @FXML private void quitGameHandler() {
