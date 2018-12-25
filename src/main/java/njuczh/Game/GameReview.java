@@ -42,11 +42,10 @@ public class GameReview implements Runnable{
     private boolean isReviewing = true;
 
     public GameReview(File log, GraphicsContext gc, TextArea textArea) {
-        System.out.println("Log: "+log);
-        this.gc = gc;
-        this.textArea = textArea;
         try {
             Scanner scanner = new Scanner(new BufferedReader(new FileReader(log)));
+            this.gc = gc;
+            this.textArea = textArea;
             GameFrame frame = new GameFrame();
             String head;
             while(scanner.hasNextLine()) {

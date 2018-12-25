@@ -5,7 +5,7 @@ import njuczh.Game.GameController;
 import njuczh.Game.GameReview;
 import org.junit.*;
 public class TestGameReview {
-    @Test(expected = Exception.class)
+    @Test(expected = ExceptionInInitializerError.class)
     public void loadLogTest() {
         GameReview gameReview = new GameReview(null, null,null);
     }
