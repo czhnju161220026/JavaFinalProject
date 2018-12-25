@@ -15,12 +15,9 @@ public abstract class Creature extends Thing{
     protected  int health;
     protected  int maxHelth;
     protected CreatureAttribute property;
-    protected boolean moveFinished;
-    protected ArrayList<Position> trace = new ArrayList<>();
-    protected int traceIndex = 0;
+    protected int numOfSteps = 0;
     protected static Block[][] battlefield;
     protected static Queue<CreaturesMeet> meetQueue;
-    protected static boolean isReviewing = false;
     public int getAttackPower() {
         return attackPower;
     }
@@ -58,9 +55,6 @@ public abstract class Creature extends Thing{
     public CreatureAttribute getProperty() {
         return property;
     }
-    public ArrayList<Position> getTrace() {
-        return trace;
-    }
 
     public static void setMeetQueue(Queue<CreaturesMeet> queue) {
         meetQueue = queue;
@@ -68,8 +62,11 @@ public abstract class Creature extends Thing{
     public static void setBattlefield(Block[][] field) {
         battlefield = field;
     }
+
     //抽象方法
     public abstract Image getImage();
+    public abstract String getInfo();
+
     Position nextMove() {return null;}
     public void moveTo(Position pos) {
         battlefield[this.position.getI()][this.position.getJ()].creatureLeave();
@@ -100,7 +97,6 @@ public abstract class Creature extends Thing{
         else {
             next.setI(i+1);
         }
-
         return next;
     }
 
@@ -130,35 +126,7 @@ public abstract class Creature extends Thing{
                         battlefield[i][j].creatureEnter(dead);
                     }
                 }
-                else {
-                    //如果游戏时因为队友或尸体占据了位置而阻塞了前进，重新记录移动轨迹
-                    if(!isReviewing) {
-                        trace.remove(trace.size()-1);
-                        trace.add(new Position(getPosition().getX(),getPosition().getY()));
-                    }
-                    //如果在回放时发现位置被队友占据，那么同步等待队友离开
-                    else {
-                        if(creature.getProperty() == CreatureAttribute.DEAD) {
-                            //System.out.println("不应该在这里有尸体");
-                            moveTo(nextPos);
-                        }
-                    }
-                }
             }
         }
-    }
-
-    public static void setIsReviewing() {
-        isReviewing = true;
-    }
-
-    public static void setIsGamming() {
-        isReviewing = false;
-    }
-
-    public void setTrace(ArrayList<Position> trace) {
-        position = trace.get(0);
-        trace.remove(0);
-        this.trace = trace;
     }
 }

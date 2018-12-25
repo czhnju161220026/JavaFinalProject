@@ -18,4 +18,9 @@ public class DeadCreature extends Creature{
     public void decreaseTime() {
         count-=50;
     }
+
+    @Override
+    public String getInfo() {
+        return "D "+getPosition().toString();
+    }
 }

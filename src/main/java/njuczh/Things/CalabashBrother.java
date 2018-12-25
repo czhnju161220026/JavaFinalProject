@@ -61,82 +61,66 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
 
     @Override
     Position nextMove() {
-        if(!isReviewing) {
-            Random random = new Random();
-            int i = getPosition().getI();
-            int j = getPosition().getJ();
-            Position next = new Position(getPosition().getX(),getPosition().getY());
-            synchronized (battlefield) {
-                if(i>0&&!battlefield[i-1][j].isEmpty()) {
-                    if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
-                        next.setI(i-1);
-                        return next;
-                    }
-                }
-                else if(i<9&&!battlefield[i+1][j].isEmpty()) {
-                    if(battlefield[i+1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
-                        next.setI(i+1);
-                        return next;
-                    }
-                }
-                else if(j>0&&!battlefield[i][j-1].isEmpty()) {
-                    if(battlefield[i][j-1].getCreature().getProperty()==CreatureAttribute.BAD) {
-                        next.setJ(j-1);
-                        return next;
-                    }
-                }
-                else if(j<17&&!battlefield[i][j+1].isEmpty()) {
-                    if(battlefield[i][j+1].getCreature().getProperty()==CreatureAttribute.BAD) {
-                        next.setJ(j+1);
-                        return next;
-                    }
+        Random random = new Random();
+        int i = getPosition().getI();
+        int j = getPosition().getJ();
+        Position next = new Position(getPosition().getX(),getPosition().getY());
+        synchronized (battlefield) {
+            if(i>0&&!battlefield[i-1][j].isEmpty()) {
+                if(battlefield[i-1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setI(i-1);
+                    return next;
                 }
             }
-            if(!isReviewing && trace.size() > 18) {
-                return moveToCentralField();
+            else if(i<9&&!battlefield[i+1][j].isEmpty()) {
+                if(battlefield[i+1][j].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setI(i+1);
+                    return next;
+                }
             }
-            //周围没有敌人，随机行走
-            int choice = random.nextInt()%8;
-            if(choice ==0 && j > 0) {
-                next.setJ(j-1);
+            else if(j>0&&!battlefield[i][j-1].isEmpty()) {
+                if(battlefield[i][j-1].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setJ(j-1);
+                    return next;
+                }
             }
-            if(choice == 1 && i > 0) {
-                next.setI(i-1);
-            }
-            if(choice > 2&&j<17) {
-                next.setJ(j+1);
-            }
-            if(choice ==2&&i<9) {
-                next.setI(i+1);
-            }
-            return next;
-        }
-        //在回放状态，从trace中取出每一次的路线
-        else {
-            if(traceIndex < trace.size()) {
-                return trace.get(traceIndex++);
-            }
-            else {
-                return moveToCentralField();
+            else if(j<17&&!battlefield[i][j+1].isEmpty()) {
+                if(battlefield[i][j+1].getCreature().getProperty()==CreatureAttribute.BAD) {
+                    next.setJ(j+1);
+                    return next;
+                }
             }
         }
-    }
+        if(numOfSteps > 18) {
+            return moveToCentralField();
+        }
+        //周围没有敌人，随机行走
+        int choice = random.nextInt()%8;
+        if(choice ==0 && j > 0) {
+            next.setJ(j-1);
+        }
+        if(choice == 1 && i > 0) {
+            next.setI(i-1);
+        }
+        if(choice > 2&&j<17) {
+            next.setJ(j+1);
+        }
+        if(choice ==2&&i<9) {
+            next.setI(i+1);
+        }
+        return next;
 
+    }
     @TODO(todo = "随机行走,目前只采取避让策略，之后考虑碰撞事件")
     public void run() {
-        if(!isReviewing) {
-            trace.add(new Position(getPosition().getX(),getPosition().getY()));
-        }
         boolean timeToShoot = true;
         while(health>0) {
             Position next = nextMove();
+            numOfSteps ++ ;
             int i = next.getI();
             int j = next.getJ();
             if(health<=0) {
                 break;
-            }
-            if(!isReviewing) {
-                trace.add(next);
             }
             fight(next);
             try{
@@ -176,5 +160,18 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
         }
         Bullet bullet = new Bullet(this.toString(),bulletAttribute,bulletPos,battlefield);
         return bullet;
+    }
+
+    public String getInfo() {
+        StringBuilder info = new StringBuilder("");
+        info.append("C "+color.ordinal()+" "+getPosition().toString());
+        info.append(" "+getHelthRatio());
+        if(isCured()) {
+            info.append(" "+1);
+        }
+        else {
+            info.append(" "+0);
+        }
+        return info.toString();
     }
 }

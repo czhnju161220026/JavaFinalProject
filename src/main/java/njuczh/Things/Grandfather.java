@@ -16,7 +16,6 @@ public class Grandfather extends Creature implements Cure,Runnable{
         health = 500;
         maxHelth = 500;
         property = CreatureAttribute.GOOD;
-        moveFinished = false;
     }
 
     @Override
@@ -48,32 +47,16 @@ public class Grandfather extends Creature implements Cure,Runnable{
     }
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
-        if(!isReviewing) {
-            trace.add(new Position(getPosition().getX(),getPosition().getY()));
-        }
         while(health !=0) {
             cheer();
             Position next;
-            if(!isReviewing) {
-                next = moveToCentralField();
-            }
-            else {
-                if(traceIndex < trace.size()) {
-                    next = trace.get(traceIndex);
-                    traceIndex++;
-                }
-                else {
-                    next = moveToCentralField();
-                }
-            }
+            next = moveToCentralField();
+            numOfSteps ++ ;
 
             int i = next.getI();
             int j = next.getJ();
             if(health<=0) {
                 break;
-            }
-            if(!isReviewing) {
-                trace.add(next);
             }
             fight(next);
             try{
@@ -83,5 +66,13 @@ public class Grandfather extends Creature implements Cure,Runnable{
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public String getInfo() {
+        StringBuilder info = new StringBuilder("");
+        info.append("G "+getPosition().toString());
+        info.append(" "+getHelthRatio());
+        return info.toString();
     }
 }

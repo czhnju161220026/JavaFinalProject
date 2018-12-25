@@ -15,7 +15,6 @@ public class Snake extends Monster implements Runnable, Cure {
         this.battlefield = battlefield;
         image = new Image("snake.png");
         property = CreatureAttribute.BAD;
-        moveFinished = false;
         health = 500;
         maxHelth = 500;
         attackPower = 60;
@@ -54,19 +53,14 @@ public class Snake extends Monster implements Runnable, Cure {
     }
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
-        if(!isReviewing) {
-            trace.add(new Position(getPosition().getX(),getPosition().getY()));
-        }
         Random random = new Random();
         //现阶段采取避让策略
         while(health !=0) {
             cheer();
             Position next = nextMove();
+            numOfSteps ++ ;
             if(health<=0) {
                 break;
-            }
-            if(!isReviewing) {
-                trace.add(next);
             }
             fight(next);
             try{
@@ -76,5 +70,12 @@ public class Snake extends Monster implements Runnable, Cure {
                 e.printStackTrace();
             }
         }
+    }
+
+    public String getInfo() {
+        StringBuilder info = new StringBuilder("");
+        info.append("SN "+getPosition().toString());
+        info.append(" "+getHelthRatio());
+        return info.toString();
     }
 }

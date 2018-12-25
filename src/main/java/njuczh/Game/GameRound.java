@@ -42,7 +42,7 @@ public class GameRound implements Runnable{
     private Image explode = new Image("explode.png");
     private Image victory = new Image("victory.png");
     private Image failed = new Image("failed.png");
-
+    private BufferedWriter logWriter;
     private boolean isGamming = true;
     private ExecutorService heroBulletExecutor;
     private ExecutorService evilBulletExecutor;
@@ -50,7 +50,6 @@ public class GameRound implements Runnable{
 
 
     public GameRound(Heroes heroes,Evildoers evildoers,Battlefield battlefield,GraphicsContext gc,TextArea textArea) {
-        Creature.setIsGamming();
         this.calabashBrothers = heroes.getCalabashBrothers();
         this.grandfather = heroes.getGrandfather();
         this.scorpion = evildoers.getScorpion();
@@ -87,6 +86,13 @@ public class GameRound implements Runnable{
         creatureExecutor.execute(scorpion);
         creatureExecutor.execute(snake);
         creatureExecutor.shutdown();
+        Date date = new Date();
+        try {
+            logWriter = new BufferedWriter(new FileWriter(new File("Log_"+date.getTime()+".myLog")));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void displayAll() {
@@ -107,11 +113,14 @@ public class GameRound implements Runnable{
                 startTime = System.currentTimeMillis();
                 gc.drawImage(background,0,0,1296,721);
                 battlefield.displayBattlefield(gc);
+                battlefield.outputLog(logWriter);
 
                 synchronized (heroBullets) {
                     for(Bullet bullet: heroBullets) {
                         if(!bullet.isDone()) {
                             bullet.display(gc);
+                            logWriter.write(bullet.getInfo());
+                            logWriter.newLine();
                         }
                     }
                 }
@@ -119,6 +128,8 @@ public class GameRound implements Runnable{
                     for(Bullet bullet: evilBullets) {
                         if(!bullet.isDone()) {
                             bullet.display(gc);
+                            logWriter.write(bullet.getInfo());
+                            logWriter.newLine();
                         }
                     }
                 }
@@ -126,8 +137,11 @@ public class GameRound implements Runnable{
                     while(!hitQueue.isEmpty()) {
                         BulletHit hit = hitQueue.poll();
                         gc.drawImage(explode,hit.getPos().getX(),hit.getPos().getY()+15,40,40);
+                        logWriter.write("E "+hit.getPos().getX()+" "+(hit.getPos().getY()+15));
+                        logWriter.newLine();
                         if(hit.getResult()!="") {
                             textArea.appendText(hit.getResult());
+                            logWriter.write("T "+hit.getResult());
                         }
                     }
                 }
@@ -135,10 +149,13 @@ public class GameRound implements Runnable{
                     while(!meetQueue.isEmpty()) {
                         CreaturesMeet meet = meetQueue.poll();
                         textArea.appendText(meet.getResult());
+                        logWriter.write("T "+meet.getResult());
                     }
                 }
                 gc.setStroke(Color.WHITE);
                 gc.strokeText("FPS: "+FPS,5,30); //绘制帧数
+                logWriter.write("##");
+                logWriter.newLine();
                 TimeUnit.MILLISECONDS.sleep(50);
                 endTime = System.currentTimeMillis();
                 FPS = (int)(1000/(endTime-startTime));  //计算瞬时帧数
@@ -167,67 +184,35 @@ public class GameRound implements Runnable{
                 }
             }
         }
-        if(Heroes.allDead()) {
-            gc.drawImage(failed,402,202,522,316);
-        }
-        else {
-            gc.drawImage(victory,402,202,522,316);
-        }
-        endGame();
-    }
-
-    @TODO(todo = "输出每个生物的行进轨迹到日志")
-    private void outputLog() {
-        try{
-            Date current = new Date();
-            BufferedWriter fout = new BufferedWriter(new FileWriter(new File("Log_"+current.getTime()+".myLog")));
-            for(CalabashBrother cb:calabashBrothers) {
-                fout.write(""+cb.getTrace().size()+'\n');
-                for(Position pos:cb.getTrace()) {
-                    fout.write(pos+"  ");
-                }
-                fout.write('\n');
+        try {
+            if(Heroes.allDead()) {
+                gc.drawImage(failed,402,202,522,316);
+                logWriter.write("Fail");
             }
-            fout.write(""+grandfather.getTrace().size()+'\n');
-            for(Position pos:grandfather.getTrace()) {
-                fout.write(pos+"  ");
+            else {
+                gc.drawImage(victory,402,202,522,316);
+                logWriter.write("Win");
             }
-            fout.write('\n');
-            for(Monster monster:monsters) {
-                fout.write(""+monster.getTrace().size()+'\n');
-                for(Position pos:monster.getTrace()) {
-                    fout.write(pos+"  ");
-                }
-                fout.write('\n');
-            }
-            fout.write(""+scorpion.getTrace().size()+'\n');
-            for(Position pos:scorpion.getTrace()) {
-                fout.write(pos+"  ");
-            }
-            fout.write('\n');
-            fout.write(""+snake.getTrace().size()+'\n');
-            for(Position pos:snake.getTrace()) {
-                fout.write(pos+"  ");
-            }
-            fout.write('\n');
-            fout.flush();
-            fout.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
-    @TODO(todo="进行线程的分配，游戏进行，游戏战斗的记录")
-    public void run(){
-        System.out.println("开始新回合");
-        initThreads();
-        displayAll();
-        outputLog();
-    }
 
-    @TODO(todo="完成一些游戏结束后的清理")
+
+    @TODO(todo="退出游戏")
     public void endGame() {
         isGamming = false;
+    }
+
+    @TODO(todo="完成游戏结束后的清理")
+    public void cleanUp() {
+        try {
+            logWriter.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
         //heroBulletExecutor.shutdown();
         //杀死所有生物，以结束它们的线程
         for(CalabashBrother cb: calabashBrothers) {
@@ -252,6 +237,16 @@ public class GameRound implements Runnable{
         while(!creatureExecutor.isTerminated()) {}
         while(!evilBulletExecutor.isTerminated()) {}
         while(!heroBulletExecutor.isTerminated()) {}
+    }
+
+    @TODO(todo="进行线程的分配，游戏进行，游戏战斗的记录")
+    public void run(){
+        System.out.println("开始新回合");
+        initThreads();
+        displayAll();
+        endGame();
+        cleanUp();
+        textArea.appendText("游戏结束，请按结束游戏按钮");
     }
 }
 

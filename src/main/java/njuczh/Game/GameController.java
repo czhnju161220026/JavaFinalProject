@@ -79,7 +79,7 @@ public class GameController implements Initializable{
                 }
             }
             else {
-                if(isGamming&&event.getCode()==KeyCode.ESCAPE) {
+                if((isGamming||isReviewing)&&event.getCode()==KeyCode.ESCAPE) {
                     quitGameHandler();
                 }
             }
@@ -136,6 +136,7 @@ public class GameController implements Initializable{
             FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("选择myLog日志文件","*.myLog");
             logChooser.getExtensionFilters().add(extensionFilter);
             Stage stage = (Stage)aPane.getScene().getWindow();
+            stage.setOnCloseRequest(new ClickCloseHandler());
             File log =logChooser.showOpenDialog(stage);
             if(log!=null) {
                 isReviewing = true;
@@ -194,6 +195,7 @@ public class GameController implements Initializable{
                 Creature.setBattlefield(battlefield.getBattlefield());
                 heroes.changeFormation(providers.get(currentFormationHero),battlefield.getBattlefield());
                 evildoers.changeFormation(providers.get(currentFormationEvil),battlefield.getBattlefield());
+                gc.drawImage(background,0,0,1296,721);
                 battlefield.displayBattlefield(gameArea.getGraphicsContext2D());
             }
         }
@@ -205,7 +207,7 @@ public class GameController implements Initializable{
         });
     }
     @FXML private void heroesChangeFormationHandler() {
-        if(!isGamming) {
+        if(!isGamming && !isReviewing) {
             gameLog.appendText("葫芦娃阵营变阵:");
             currentFormationHero = (currentFormationHero+1)%providers.size();
             battlefield.clearBattlefield();
@@ -223,7 +225,7 @@ public class GameController implements Initializable{
         });
     }
     @FXML private void evildoersChangeFormationHandler() {
-        if(!isGamming) {
+        if(!isGamming && !isReviewing) {
             gameLog.appendText("怪物阵营变阵:");
             currentFormationEvil = (currentFormationEvil+1)%providers.size();
             battlefield.clearBattlefield();

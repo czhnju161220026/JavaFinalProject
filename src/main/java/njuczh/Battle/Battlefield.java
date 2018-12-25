@@ -8,6 +8,9 @@ import njuczh.MyAnnotation.Author;
 import njuczh.Things.Creature;
 import njuczh.Things.DeadCreature;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 
 @Author(name = "崔子寒")
 public class Battlefield {
@@ -59,6 +62,24 @@ public class Battlefield {
         }
     }
 
+    //输出日志
+    public void outputLog(BufferedWriter fout) {
+        synchronized (battlefield) {
+            for(int i = 0;i < 10;i++) {
+                for(int j = 0;j < 18;j++) {
+                    if(!battlefield[i][j].isEmpty()) {
+                        try {
+                            fout.write(battlefield[i][j].getCreature().getInfo());
+                            fout.newLine();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
     public void clearBattlefield() {
         for(int i = 0;i < 10;i++) {
             for(int j = 0;j < 18;j++) {

@@ -15,7 +15,6 @@ public class Scorpion extends Monster implements Runnable, Shoot {
     public Scorpion() {
         image = new Image("scorpion.png");
         property = CreatureAttribute.BAD;
-        moveFinished = false;
         health = 600;
         maxHelth = 600;
         attackPower = 60;
@@ -32,18 +31,13 @@ public class Scorpion extends Monster implements Runnable, Shoot {
     @TODO(todo = "随机行走,目前只采取避让策略，走出界即结束。之后考虑碰撞事件")
     public void run() {
         Random random = new Random();
-        if(!isReviewing) {
-            trace.add(new Position(getPosition().getX(),getPosition().getY()));
-        }
         boolean timeToShoot = false;
         //现阶段采取避让策略
         while(health !=0) {
             Position next = nextMove();
+            numOfSteps ++;
             if(health<=0) {
                 break;
-            }
-            if(!isReviewing) {
-                trace.add(next);
             }
             fight(next);
 
@@ -76,5 +70,17 @@ public class Scorpion extends Monster implements Runnable, Shoot {
         Position bulletPos = new Position(getPosition().getX()-72,getPosition().getY());
         Bullet bullet = new Bullet(this.toString(), BulletAttribute.STINGER,bulletPos,battlefield);
         return bullet;
+    }
+    public String getInfo() {
+        StringBuilder info = new StringBuilder("");
+        info.append("SC "+getPosition().toString());
+        info.append(" "+getHelthRatio());
+        if(isCured()) {
+            info.append(" "+1);
+        }
+        else {
+            info.append(" "+0);
+        }
+        return info.toString();
     }
 }

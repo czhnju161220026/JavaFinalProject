@@ -125,4 +125,10 @@ public class Bullet extends Thing implements Runnable{
     public Position getPos() {
         return pos;
     }
+
+    public String getInfo() {
+        StringBuilder stringBuilder = new StringBuilder("");
+        stringBuilder.append("B "+attribute.ordinal()+" "+pos.toString());
+        return stringBuilder.toString();
+    }
 }
