@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import njuczh.MyAnnotation.TODO;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,8 @@ public class GameReview implements Runnable{
 
     public GameReview(File log, GraphicsContext gc, TextArea textArea) {
         try {
-            Scanner scanner = new Scanner(new BufferedReader(new FileReader(log)));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(log), StandardCharsets.UTF_8));
+            Scanner scanner = new Scanner(reader);
             this.gc = gc;
             this.textArea = textArea;
             GameFrame frame = new GameFrame();

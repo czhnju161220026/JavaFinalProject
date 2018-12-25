@@ -9,13 +9,11 @@ import njuczh.Battle.*;
 import njuczh.MyAnnotation.*;
 import njuczh.Things.*;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -88,7 +86,8 @@ public class GameRound implements Runnable{
         creatureExecutor.shutdown();
         Date date = new Date();
         try {
-            logWriter = new BufferedWriter(new FileWriter(new File("Log_"+date.getTime()+".myLog")));
+            String path = "Log_"+date.getTime()+".myLog";
+            logWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), StandardCharsets.UTF_8));
         }
         catch (IOException e) {
             e.printStackTrace();
