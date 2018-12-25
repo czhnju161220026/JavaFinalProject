@@ -3,6 +3,7 @@ package njuczh.Game;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import njuczh.MyAnnotation.TODO;
 
 import java.io.*;
@@ -148,6 +149,8 @@ public class GameReview implements Runnable{
     public void run() {
         for(GameFrame frame : frameList) {
             frame.displayFrame(gc,textArea);
+            gc.setStroke(Color.WHITE);
+            gc.strokeText("FPS: "+20,5,30); //绘制帧数
             try {
                 TimeUnit.MILLISECONDS.sleep(50);
             }
