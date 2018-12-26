@@ -1,10 +1,10 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
-import njuczh.Attributes.BulletAttribute;
+import njuczh.Attributes.BulletCategory;
+import njuczh.Attributes.BulletDirection;
 import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
-import njuczh.Battle.CreaturesMeet;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.Shoot;
 
@@ -43,10 +43,16 @@ public class Scorpion extends Monster implements Runnable, Shoot {
 
             try{
                 if(timeToShoot) {
-                    Bullet bullet =shoot();
-                    bulletExecutor.execute(bullet);
+                    Bullet[] bullets1 ={shoot(),shoot(),shoot()};
+                    bullets1[0].setDirection(BulletDirection.LEFT_DOWN);
+                    bullets1[1].setDirection(BulletDirection.LEFT_UP);
+                    for(Bullet bullet : bullets1) {
+                        bulletExecutor.execute(bullet);
+                    }
                     synchronized (bullets) {
-                        bullets.add(bullet);
+                        for(Bullet bullet : bullets1) {
+                            bullets.add(bullet);
+                        }
                     }
                 }
                 timeToShoot = !timeToShoot;
@@ -68,7 +74,7 @@ public class Scorpion extends Monster implements Runnable, Shoot {
     }
     public Bullet shoot() {
         Position bulletPos = new Position(getPosition().getX()-72,getPosition().getY());
-        Bullet bullet = new Bullet(this.toString(), BulletAttribute.STINGER,bulletPos,battlefield);
+        Bullet bullet = new Bullet(this.toString(), BulletCategory.STINGER, BulletDirection.LEFT,bulletPos,battlefield);
         return bullet;
     }
     public String getInfo() {

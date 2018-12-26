@@ -1,10 +1,10 @@
 package njuczh.Things;
 
 import javafx.scene.image.Image;
-import njuczh.Attributes.BulletAttribute;
+import njuczh.Attributes.BulletCategory;
+import njuczh.Attributes.BulletDirection;
 import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
-import njuczh.Battle.CreaturesMeet;
 import njuczh.Skills.Shoot;
 
 import java.util.ArrayList;
@@ -139,7 +139,7 @@ public class Monster extends Creature implements Runnable, Shoot {
     }
     public Bullet shoot() {
         Position bulletPos = new Position(getPosition().getX()-72,getPosition().getY());
-        Bullet bullet = new Bullet(toString(), BulletAttribute.EVIL,bulletPos,battlefield);
+        Bullet bullet = new Bullet(toString(), BulletCategory.EVIL, BulletDirection.LEFT,bulletPos,battlefield);
         return bullet;
     }
 

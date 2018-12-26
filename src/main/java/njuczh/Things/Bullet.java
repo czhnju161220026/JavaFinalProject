@@ -2,7 +2,8 @@ package njuczh.Things;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import njuczh.Attributes.BulletAttribute;
+import njuczh.Attributes.BulletCategory;
+import njuczh.Attributes.BulletDirection;
 import njuczh.Attributes.CreatureAttribute;
 import njuczh.Attributes.Position;
 import njuczh.Battle.Block;
@@ -19,37 +20,38 @@ public class Bullet extends Thing implements Runnable{
     private String shooterName;
     private CreatureAttribute target;
     private Position pos;
-    private int direction;
+    private int directionX;
+    private int directionY;
     private boolean isDone = false;
     private final Block[][] battlefield;
     private static Queue<BulletHit> hitQueue;
 
-    private BulletAttribute attribute;
-    public Bullet(String shooterName, BulletAttribute attribute, Position pos,Block[][] battlefield) {
+    private BulletCategory attribute;
+    public Bullet(String shooterName, BulletCategory attribute, BulletDirection direction, Position pos, Block[][] battlefield) {
         this.shooterName = shooterName;
         this.pos = pos;
         this.attribute = attribute;
         this.battlefield = battlefield;
+        this.directionX = direction.getDeltaInX();
+        this.directionY = direction.getDeltaInY();
         attackPower = 60;
         image = new Image(attribute.getImagePath());
-        if(attribute==BulletAttribute.EVIL||attribute==BulletAttribute.STINGER) {
+        if(attribute== BulletCategory.EVIL||attribute== BulletCategory.STINGER) {
             target = CreatureAttribute.GOOD;
-            direction = -1;
-            if(attribute == BulletAttribute.STINGER) {
-                attackPower = 90;
+            if(attribute == BulletCategory.STINGER) {
+                attackPower = 110;
             }
         }
         else {
             target = CreatureAttribute.BAD;
-            direction = 1;
-            if(attribute == BulletAttribute.FIRE||attribute == BulletAttribute.WATER) {
-                attackPower = 110;
+            if(attribute == BulletCategory.FIRE||attribute == BulletCategory.WATER) {
+                attackPower = 90;
             }
         }
     }
     @TODO(todo = "在图像上绘制自己")
     public void display(GraphicsContext gc) {
-        if(attribute == BulletAttribute.FIRE || attribute == BulletAttribute.WATER||attribute==BulletAttribute.STINGER) {
+        if(attribute == BulletCategory.FIRE || attribute == BulletCategory.WATER||attribute== BulletCategory.STINGER) {
             gc.drawImage(image,pos.getX(),pos.getY()+15,40,20);
         }
         else {
@@ -75,7 +77,7 @@ public class Bullet extends Thing implements Runnable{
         return target;
     }
 
-    public BulletAttribute getAttribute() {
+    public BulletCategory getAttribute() {
         return attribute;
     }
 
@@ -86,13 +88,13 @@ public class Bullet extends Thing implements Runnable{
     public void run() {
         int i = pos.getI();
         int j = pos.getJ();
-        while(!isDone && pos.getX() > 0 && pos.getX() < 1296) {
-            pos.setX(pos.getX()+ direction *18);
-            if(pos.getX()%72 == 0) {
-                j = pos.getJ();
-                if(j==18) {
-                    break;
-                }
+        while(!isDone && pos.getX() > 0 && pos.getX() < 1296 && pos.getY() > 0 && pos.getY() < 720) {
+            pos.setX(pos.getX() + directionX);
+            pos.setY(pos.getY() + directionY);
+            i = pos.getI();
+            j = pos.getJ();
+            if(j == 18 || i==10) {
+                break;
             }
             synchronized (battlefield) {
                 if(!battlefield[i][j].isEmpty()) {
@@ -124,6 +126,11 @@ public class Bullet extends Thing implements Runnable{
 
     public Position getPos() {
         return pos;
+    }
+
+    public void setDirection(BulletDirection direction) {
+        this.directionX = direction.getDeltaInX();
+        this.directionY = direction.getDeltaInY();
     }
 
     public String getInfo() {

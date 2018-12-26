@@ -1,11 +1,7 @@
 package njuczh.Things;
-import njuczh.Attributes.BulletAttribute;
-import njuczh.Attributes.CreatureAttribute;
-import njuczh.Attributes.Position;
-import njuczh.Battle.CreaturesMeet;
+import njuczh.Attributes.*;
 import njuczh.MyAnnotation.TODO;
 import njuczh.Skills.*;
-import njuczh.Attributes.Color;
 import javafx.scene.image.Image;
 
 import java.util.ArrayList;
@@ -125,10 +121,25 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
             fight(next);
             try{
                 if(timeToShoot) {
-                    Bullet bullet = shoot();
-                    bulletExecutor.execute(bullet);
-                    synchronized (bullets) {
-                        bullets.add(bullet);
+                    if(color==Color.GREEN || color==Color.CYAN) {
+                        Bullet[] bullets1 = {shoot(),shoot(),shoot()};
+                        bullets1[0].setDirection(BulletDirection.RIGHT_UP);
+                        bullets1[1].setDirection(BulletDirection.RIGHT_DOWN);
+                        for(Bullet bullet : bullets1) {
+                            bulletExecutor.execute(bullet);
+                        }
+                        synchronized (bullets) {
+                            for(Bullet bullet : bullets1) {
+                                bullets.add(bullet);
+                            }
+                        }
+                    }
+                    else {
+                        Bullet bullet = shoot();
+                        bulletExecutor.execute(bullet);
+                        synchronized (bullets) {
+                            bullets.add(bullet);
+                        }
                     }
                 }
                 timeToShoot = !timeToShoot;
@@ -151,14 +162,14 @@ public class CalabashBrother extends Creature implements Shoot,Runnable{
 
     public Bullet shoot() {
         Position bulletPos = new Position(getPosition().getX()+72,getPosition().getY());
-        BulletAttribute bulletAttribute = BulletAttribute.HERO;
+        BulletCategory bulletCategory = BulletCategory.HERO;
         if(color == Color.GREEN) {
-            bulletAttribute = BulletAttribute.FIRE;
+            bulletCategory = BulletCategory.FIRE;
         }
         if(color == Color.CYAN) {
-            bulletAttribute = BulletAttribute.WATER;
+            bulletCategory = BulletCategory.WATER;
         }
-        Bullet bullet = new Bullet(this.toString(),bulletAttribute,bulletPos,battlefield);
+        Bullet bullet = new Bullet(this.toString(), bulletCategory, BulletDirection.RIGHT,bulletPos,battlefield);
         return bullet;
     }
 
